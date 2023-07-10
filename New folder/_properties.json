@@ -1,0 +1,76 @@
+{ 
+    "_id" : "_properties.tbDMDCQG", 
+    "_etag" : ObjectId("60ab1f050776a2040449fde4")
+}
+{ 
+    "_id" : "_properties.tbDanhMuc", 
+    "_etag" : ObjectId("60ab1f050776a2040449fde6")
+}
+{ 
+    "_id" : "_properties.tbNhomQuyenNguoiDung", 
+    "_etag" : ObjectId("60ab1f050776a2040449fde9")
+}
+{ 
+    "_id" : "_properties.tbDanhMucUngDung", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdea")
+}
+{ 
+    "_id" : "_properties.tbLogDMDCQGApi", 
+    "_etag" : ObjectId("60ab1f050776a2040449fde8")
+}
+{ 
+    "_id" : "_properties.tbLogs", 
+    "_etag" : ObjectId("60ab1f050776a2040449fde7")
+}
+{ 
+    "_id" : "_properties.tbBanGhiDMDCQG", 
+    "_etag" : ObjectId("60ab1f050776a2040449fde5")
+}
+{ 
+    "_id" : "_properties.tbLogApi", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdeb")
+}
+{ 
+    "_id" : "_properties.tbUsers", 
+    "_etag" : ObjectId("60ab1f050776a2040449fded")
+}
+{ 
+    "_id" : "_properties.tbThuocTinhDanhMuc", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdf1")
+}
+{ 
+    "_id" : "_properties.tbNhomDanhMuc", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdec")
+}
+{ 
+    "_id" : "_properties.tbYKienDongGop", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdf2")
+}
+{ 
+    "_id" : "_properties.tbDonVi", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdee")
+}
+{ 
+    "_id" : "_properties.tbDonViHanhChinh", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdef")
+}
+{ 
+    "_id" : "_properties.tbNhomQuyen", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdf0")
+}
+{ 
+    "_id" : "_properties.tbMenu", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdf3")
+}
+{ 
+    "_id" : "_properties.tbThongKe", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdf5")
+}
+{ 
+    "_id" : "_properties.tbThongTinUngDung", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdf4")
+}
+{ 
+    "_id" : "_properties.tbLinhVuc", 
+    "_etag" : ObjectId("60ab1f050776a2040449fdf6")
+}

@@ -1,0 +1,120 @@
+{ 
+    "_id" : ObjectId("5f2d015ee856207faa5dd6ab"), 
+    "_etag" : ObjectId("641181e1f988a33ae03fcab9"), 
+    "GhiChu" : "Khối Cơ quan Bộ Quốc phòng", 
+    "KichHoat" : true, 
+    "Ma" : "KCQ_BQP", 
+    "MaDanhMuc" : "KhoiToChuc", 
+    "STT" : NumberInt(1), 
+    "Ten" : "Khối Cơ quan Bộ Quốc phòng", 
+    "code" : "5f2d015cf173933964a9ab9e", 
+    "createdAt" : NumberLong(1596784988819), 
+    "createdBy" : "su-root", 
+    "isActive" : true, 
+    "modifiedAt" : NumberLong(1678868961034), 
+    "modifiedBy" : "su-root"
+}
+{ 
+    "_id" : ObjectId("5f2d0170e856207faa5dd6e6"), 
+    "_etag" : ObjectId("5f2d01700776a203fd766e68"), 
+    "GhiChu" : "Khối Quân chủng, Binh chủng, Bộ Tư lệnh", 
+    "KichHoat" : true, 
+    "Ma" : "KQC_BC_BTL", 
+    "MaDanhMuc" : "KhoiToChuc", 
+    "STT" : NumberInt(9999), 
+    "Ten" : "Khối Quân chủng, Binh chủng, Bộ Tư lệnh", 
+    "code" : "5f2d016ff173933964a9ab9f", 
+    "createdAt" : NumberLong(1596785007288), 
+    "createdBy" : "su-root", 
+    "isActive" : true
+}
+{ 
+    "_id" : ObjectId("5f2d017fe856207faa5dd722"), 
+    "_etag" : ObjectId("5f2d022b0776a203fd766e8c"), 
+    "KichHoat" : true, 
+    "Ma" : "KQK_QD", 
+    "MaDanhMuc" : "KhoiToChuc", 
+    "STT" : NumberInt(9999), 
+    "Ten" : "Khối Quân khu, Quân đoàn", 
+    "code" : "5f2d017ef173933964a9aba0", 
+    "createdAt" : NumberLong(1596785022375), 
+    "createdBy" : "su-root", 
+    "isActive" : true, 
+    "GhiChu" : "Khối Quân khu, Quân đoàn\t", 
+    "modifiedAt" : NumberLong(1596785194084), 
+    "modifiedBy" : "su-root"
+}
+{ 
+    "_id" : ObjectId("5f2d01dbe856207faa5dd778"), 
+    "_etag" : ObjectId("5f2d02300776a203fd766e9c"), 
+    "KichHoat" : true, 
+    "Ma" : "KHV_NT_BV_TT", 
+    "MaDanhMuc" : "KhoiToChuc", 
+    "STT" : NumberInt(9999), 
+    "Ten" : "Khối Học viện, Nhà trường, Bệnh viện, Trung tâm", 
+    "code" : "5f2d01daf173933964a9aba1", 
+    "createdAt" : NumberLong(1596785114175), 
+    "createdBy" : "su-root", 
+    "isActive" : true, 
+    "GhiChu" : "Khối Học viện, Nhà trường, Bệnh viện, Trung tâm\t", 
+    "modifiedAt" : NumberLong(1596785199379), 
+    "modifiedBy" : "su-root"
+}
+{ 
+    "_id" : ObjectId("5f2d0221e856207faa5dd793"), 
+    "_etag" : ObjectId("5f2d02370776a203fd766ea9"), 
+    "KichHoat" : true, 
+    "Ma" : "KDVKT", 
+    "MaDanhMuc" : "KhoiToChuc", 
+    "STT" : NumberInt(9999), 
+    "Ten" : "Khối đơn vị kinh tế", 
+    "code" : "5f2d021ff173933964a9aba2", 
+    "createdAt" : NumberLong(1596785183766), 
+    "createdBy" : "su-root", 
+    "isActive" : true, 
+    "GhiChu" : "Khối đơn vị kinh tế\t", 
+    "modifiedAt" : NumberLong(1596785206132), 
+    "modifiedBy" : "su-root"
+}
+{ 
+    "_id" : ObjectId("5f2d0296e856207faa5dd8c9"), 
+    "_etag" : ObjectId("5f2d02960776a203fd766eb6"), 
+    "GhiChu" : "Danh mục đơn", 
+    "KichHoat" : true, 
+    "Ma" : "DMD", 
+    "MaDanhMuc" : "LoaiDanhMuc", 
+    "STT" : NumberInt(9999), 
+    "Ten" : "Danh mục đơn", 
+    "code" : "5f2d0295f173933964a9aba3", 
+    "createdAt" : NumberLong(1596785301286), 
+    "createdBy" : "su-root", 
+    "isActive" : true
+}
+{ 
+    "_id" : ObjectId("5f2d02a4e856207faa5dd913"), 
+    "_etag" : ObjectId("5f2d02a40776a203fd766ec0"), 
+    "GhiChu" : "Danh mục quan hệ", 
+    "KichHoat" : true, 
+    "Ma" : "DMQH", 
+    "MaDanhMuc" : "LoaiDanhMuc", 
+    "STT" : NumberInt(9999), 
+    "Ten" : "Danh mục quan hệ", 
+    "code" : "5f2d02a3f173933964a9aba4", 
+    "createdAt" : NumberLong(1596785315224), 
+    "createdBy" : "su-root", 
+    "isActive" : true
+}
+{ 
+    "_id" : ObjectId("5f2d02b7e856207faa5dd92b"), 
+    "_etag" : ObjectId("5f2d02b70776a203fd766ec4"), 
+    "GhiChu" : "Danh mục cây", 
+    "KichHoat" : true, 
+    "Ma" : "DMC", 
+    "MaDanhMuc" : "LoaiDanhMuc", 
+    "STT" : NumberInt(9999), 
+    "Ten" : "Danh mục cây", 
+    "code" : "5f2d02b6f173933964a9aba5", 
+    "createdAt" : NumberLong(1596785334142), 
+    "createdBy" : "su-root", 
+    "isActive" : true
+}

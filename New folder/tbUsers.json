@@ -1,0 +1,31 @@
+{ 
+    "_id" : ObjectId("60ab5db4d1bc0b9a22948590"), 
+    "_etag" : ObjectId("64075653a5521720385513c5"), 
+    "DonVi" : {
+        "_id" : ObjectId("60ab5da2d1bc0b9a229484c1"), 
+        "_etag" : ObjectId("60ab5da20776a2040449ff69"), 
+        "Cap" : NumberInt(0), 
+        "DonViCha" : null, 
+        "KichHoat" : true, 
+        "Ma" : "DV_TEST", 
+        "STT" : NumberInt(9999), 
+        "Ten" : "Đơn vị test", 
+        "code" : "60ab5da187e1e81670545266", 
+        "codeTree" : "DV_TEST", 
+        "createdAt" : NumberLong(1621843361849), 
+        "createdBy" : "su-root", 
+        "isActive" : true, 
+        "isDisabled" : false
+    }, 
+    "KichHoat" : true, 
+    "account" : "luongld", 
+    "code" : "60ab5db487e1e81670545267", 
+    "createdAt" : NumberLong(1621843380030), 
+    "createdBy" : "luongld", 
+    "isActive" : true, 
+    "name" : "Lương ld", 
+    "pwd" : "$2a$10$XxKKc.fN09b84kp.DtvPwOil.T5cmkJXqoN76KYQ225GT6PlWaO/u", 
+    "modifiedAt" : NumberLong(1678202451518), 
+    "modifiedBy" : "su-root", 
+    "email" : "luong@abc.com.vn"
+}

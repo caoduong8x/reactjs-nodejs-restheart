@@ -1,0 +1,52 @@
+table {
+  thead,
+  tfoot {
+    text-align: center;
+  }
+  td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    // white-space: nowrap;
+  }
+}
+.fix-first {
+  table {
+    th {
+      vertical-align: middle;
+    }
+    thead,
+    tbody,
+    tfoot {
+      td:nth-child(1) {
+        vertical-align: middle !important;
+        text-align: center;
+        width: 40px;
+      }
+    }
+
+    tbody {
+      td:last-child {
+        text-align: center;
+        width: 140px;
+      }
+    }
+  }
+}
+// //
+.table-fix-head-custom {
+  overflow-x: scroll;
+  max-height: calc(100vh - 200px);
+
+  /* Just common table stuff. Really. */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th {
+    background: #dddddd;
+  }
+}
+.table-fix-head-custom thead th {
+  position: sticky;
+  top: -1px;
+}

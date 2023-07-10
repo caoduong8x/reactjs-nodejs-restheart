@@ -1,0 +1,122 @@
+{ 
+    "_id" : ObjectId("60ab70d0d1bc0b9a2295134c"), 
+    "NguoiDung" : {
+        "account" : "luongld"
+    }, 
+    "Quyen" : {
+        "Ma" : [
+            "TEST"
+        ], 
+        "ChucNang" : [
+            {
+                "Ma" : "/tbDonVi", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }, 
+            {
+                "Ma" : "/tbUsers", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }, 
+            {
+                "Ma" : "/tbLogApi", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }, 
+            {
+                "Ma" : "/tbDanhMucUngDung", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }, 
+            {
+                "Ma" : "/tbNhomQuyen", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }, 
+            {
+                "Ma" : "/tbNhomQuyenNguoiDung", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }, 
+            {
+                "Ma" : "/tbMenu", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }, 
+            {
+                "Ma" : "/tbCurrentPermission", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }, 
+            {
+                "Ma" : "/auth", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }, 
+            {
+                "Ma" : "/users", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }, 
+            {
+                "Ma" : "/general", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }, 
+            {
+                "Ma" : "/media", 
+                "HanhDong" : {
+                    "POST" : true, 
+                    "GET" : true, 
+                    "PATCH" : true, 
+                    "DELETE" : true
+                }
+            }
+        ]
+    }, 
+    "_etag" : ObjectId("64075662a5521720385513cc")
+}

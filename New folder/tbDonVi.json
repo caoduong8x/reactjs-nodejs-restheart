@@ -1,0 +1,15 @@
+{ 
+    "_id" : ObjectId("60ab5da2d1bc0b9a229484c1"), 
+    "_etag" : ObjectId("60ab5da20776a2040449ff69"), 
+    "Cap" : NumberInt(0), 
+    "DonViCha" : null, 
+    "KichHoat" : true, 
+    "Ma" : "DV_TEST", 
+    "STT" : NumberInt(9999), 
+    "Ten" : "Đơn vị test", 
+    "code" : "60ab5da187e1e81670545266", 
+    "codeTree" : "DV_TEST", 
+    "createdAt" : NumberLong(1621843361849), 
+    "createdBy" : "su-root", 
+    "isActive" : true
+}

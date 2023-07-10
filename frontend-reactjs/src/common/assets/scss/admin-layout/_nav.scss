@@ -1,0 +1,101 @@
+// Add styling for icons used within nav links
+.nav,
+.sb-sidenav-menu {
+  .nav-link .sb-nav-link-icon {
+    margin-right: 0.5rem;
+  }
+}
+
+.sb-topnav {
+  padding-left: 0;
+  height: $topnav-base-height;
+  z-index: $zindex-topnav;
+
+  .navbar-brand {
+    width: 100%;
+    padding-left: $navbar-padding-x;
+    padding-right: $navbar-padding-x;
+    text-align: left;
+    margin: 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  &.navbar-dark {
+    #sidebarToggle {
+      color: $topnav-dark-toggler-color;
+    }
+  }
+
+  &.navbar-light {
+    #sidebarToggle {
+      color: $topnav-light-toggler-color;
+    }
+  }
+}
+
+.sb-sidenav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-wrap: nowrap;
+
+  .sb-sidenav-menu {
+    flex-grow: 1;
+
+    .nav {
+      flex-direction: column;
+      flex-wrap: nowrap;
+
+      .sb-sidenav-menu-heading {
+        padding: 1.75rem 1rem 0.75rem;
+        // font-size: 0.75rem;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        margin-top: 1px;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        position: relative;
+
+        &.active {
+          // background-color: #c80000;
+          color: #0061f2;
+          font-weight: bold;
+        }
+
+        &:hover {
+          // background-color: #c80000;
+          color: #0061f2;
+        }
+
+        .sb-sidenav-collapse-arrow {
+          display: inline-block;
+          margin-left: auto;
+          transition: transform 0.15s ease;
+        }
+
+        &.collapsed {
+          .sb-sidenav-collapse-arrow {
+            transform: rotate(-90deg);
+          }
+        }
+      }
+
+      .sb-sidenav-menu-nested {
+        margin-left: 1.5rem;
+        flex-direction: column;
+      }
+    }
+  }
+
+  .sb-sidenav-footer {
+    padding: 0.75rem;
+    flex-shrink: 0;
+  }
+}

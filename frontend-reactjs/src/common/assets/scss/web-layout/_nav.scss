@@ -1,0 +1,49 @@
+.web-sidenav {
+  position: fixed;
+  top: $topnav-base-height;
+  left: 0;
+  right: 0;
+  min-height: $nav-height;
+  z-index: 1000;
+  padding: 0;
+  background: #0e2d64 !important;
+
+  .navbar-nav-level-2,
+  .navbar-nav-level-3,
+  .navbar-nav-level-4 {
+    flex-direction: column;
+  }
+
+  .dropdown-menu {
+    padding: 0;
+    margin-top: 0;
+    border: none;
+    border-radius: 0;
+    min-width: 250px;
+  }
+
+  .nav-item {
+    a {
+      color: #ffffff !important;
+    }
+
+    .nav-link {
+      font-weight: 400;
+      color: #ffffff;
+      padding-left: 15px;
+      padding-right: 15px;
+      background: #0e2d64;
+
+      &.active {
+        background-color: #c80000 !important;
+        color: #ffffff;
+        // font-weight: bold;
+      }
+
+      &:hover {
+        background-color: #c80000 !important;
+        color: #ffffff;
+      }
+    }
+  }
+}
