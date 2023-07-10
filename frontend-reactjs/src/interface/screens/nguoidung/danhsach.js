@@ -357,12 +357,13 @@ class DanhSach extends Component {
     let filter = {};
     // if (search.Ten) filter['NguoiDung.name'] = cmFunction.regexText(search.Ten.trim())
     if (donviSelected) filter = { "DonVi.Ma": donviSelected.Ma };
+    console.log("Filter:", filter);
     if (search.Ten)
       filter["$or"] = [
         { name: cmFunction.regexText(search.Ten.trim()) },
         { account: cmFunction.regexText(search.Ten.trim()) },
       ];
-
+    console.log("Filter:", filter);
     parsed.page = parseInt(page) || CONSTANTS.DEFAULT_PAGE;
     parsed.pagesize = parseInt(pagesize) || CONSTANTS.DEFAULT_PAGESIZE;
     parsed.count = true;

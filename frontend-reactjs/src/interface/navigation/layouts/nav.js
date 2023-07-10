@@ -38,6 +38,14 @@ const ChiTietNguoiDung = loadable({
   loader: () => import("interface/screens/nguoidung/chitiet"),
   loading: LoadingComponent,
 });
+const DanhSachDonViHanhChinh = loadable({
+  loader: () => import("interface/screens/donvihanhchinh/danhsach"),
+  loading: LoadingComponent,
+});
+const ChiTietDonViHanhChinh = loadable({
+  loader: () => import("interface/screens/donvihanhchinh/chitiet"),
+  loading: LoadingComponent,
+});
 
 const DanhSachMenu = loadable({
   loader: () => import("interface/screens/menu/danhsach"),
@@ -137,6 +145,16 @@ const dashboardRoutes = [
   {
     path: "/quan-ly/nguoi-dung",
     component: DanhSachNguoiDung,
+    roles: [],
+  },
+  {
+    path: "/quan-ly/don-vi-hanh-chinh/:id",
+    component: ChiTietDonViHanhChinh,
+    roles: [],
+  },
+  {
+    path: "/quan-ly/don-vi-hanh-chinh",
+    component: DanhSachDonViHanhChinh,
     roles: [],
   },
   {

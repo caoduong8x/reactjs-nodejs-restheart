@@ -747,6 +747,218 @@
         }
       }
     },
+    "/api/data/tbDonViHanhChinh/*": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "roles",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "location",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/data/tbDonViHanhChinh/": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "roles",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "location",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Ma": {
+                  "example": "any"
+                },
+                "createdAt": {
+                  "example": "any"
+                },
+                "createdBy": {
+                  "example": "any"
+                },
+                "code": {
+                  "example": "any"
+                },
+                "isActive": {
+                  "example": "any"
+                },
+                "DonViCha": {
+                  "example": "any"
+                },
+                "codeTree": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/data/tbDonViHanhChinh/{query}": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "roles",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "location",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "modifiedAt": {
+                  "example": "any"
+                },
+                "modifiedBy": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "roles",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "location",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "modifiedAt": {
+                  "example": "any"
+                },
+                "modifiedBy": {
+                  "example": "any"
+                },
+                "code": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "roles",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "location",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/data/tbLogApi/\\*": {
       "get": {
         "description": "",

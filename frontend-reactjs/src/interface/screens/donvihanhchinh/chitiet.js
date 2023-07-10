@@ -5,10 +5,9 @@ import { BreadCrumbs, FormInput, FormWrapper } from "interface/components";
 import { __DEV__ } from "../../../common/ulti/constants";
 import * as CONSTANTS from "common/ulti/constants";
 import { confirmAlert } from "react-confirm-alert";
-import AsyncSelect from "react-select/async";
 import * as cmFunction from "common/ulti/commonFunction";
-import * as tbUsers from "controller/services/tbUsersServices";
-import * as tbDonVi from "controller/services/tbDonViServices";
+import * as tbDonViHanhChinh from "controller/services/tbDonViHanhChinhServices";
+import * as tbDanhMucUngDung from "controller/services/tbDanhMucUngDungServices";
 import { fetchToastNotify } from "../../../controller/redux/app-reducer";
 
 class ChiTiet extends Component {
@@ -20,13 +19,13 @@ class ChiTiet extends Component {
       form: {},
       donvi: [],
       donviSelected: null,
+      searchTimeout: null,
+      check: false,
     };
   }
 
   componentDidMount() {
     this._init();
-    console.log("this.props: ", this.props);
-    console.log("isInsert: ", this.state.isInsert);
   }
 
   componentDidUpdate(prevProps) {
@@ -37,15 +36,14 @@ class ChiTiet extends Component {
   }
 
   _init = async () => {
-    this.state.isInsert = this.props.match.params.id == 0;
     let id = this.props.match.params.id;
+    this.state.isInsert = id == 0;
     if (!this.state.isInsert) {
-      let data = await tbUsers.getById(id);
+      let data = await tbDonViHanhChinh.getById(id);
       if (data) {
-        delete data.pwd;
         this.state.form = data;
         this.state.donviSelected = cmFunction.convertSelectedOptions(
-          data.DonVi,
+          data.DonViCha,
           "_id.$oid",
           "Ten"
         );
@@ -60,25 +58,12 @@ class ChiTiet extends Component {
     this.forceUpdate();
   };
 
-  _handleCheckAccount = async () => {
-    if (!this.state.form.account) return false;
-    let filter = { filter: {} };
-    filter.count = true;
-    filter.page = 1;
-    filter.pagesize = 1;
-    filter.filter["account"] = this.state.form.account;
-    filter.filter = JSON.stringify(filter.filter);
-    filter = new URLSearchParams(filter).toString();
-    let data = await tbUsers.getAll(filter);
-    return data._returned;
-  };
-
   _handleChangeCheckElement = (evt) => {
     this.state.form[evt.target.id] = evt.target.checked;
     this.forceUpdate();
   };
 
-  //SELECT
+  //SELECT LOAD DATA
   _handleLoadOptions = (inputValue, callback) => {
     clearTimeout(this.state.searchTimeout);
     this.state.searchTimeout = setTimeout(async () => {
@@ -86,26 +71,40 @@ class ChiTiet extends Component {
       filter.page = 1;
       filter.pagesize = 1000;
       filter.count = true;
+      filter.sort_by = "STT";
       filter.filter = JSON.stringify({
         Ten: cmFunction.regexText(inputValue),
         KichHoat: true,
       });
       filter = new URLSearchParams(filter).toString();
-      let dsDonVi = await tbDonVi.getAll(filter);
+      let dsDonVi = await tbDonViHanhChinh.getAll(filter);
       dsDonVi = dsDonVi && dsDonVi._embedded ? dsDonVi._embedded : [];
-      let donvi = cmFunction.convertSelectOptions(dsDonVi, "_id.$oid", "Ten");
+      let id = this.props.match.params.id;
+      let find = dsDonVi.find((ele) => ele._id.$oid == id);
+      find = find ? [find] : [];
+      let donvi = cmFunction.convertSelectOptions(
+        dsDonVi,
+        "_id.$oid",
+        "Ten",
+        find
+      );
       this.state.donvi = donvi;
-
-      this.state.donvi.sort(function (a, b) {
-        if (a.Cap != b.Cap) {
-          return a.Cap - b.Cap;
-        } else {
-          return a.STT - b.STT;
-        }
-      });
       this.forceUpdate();
       callback(donvi);
     }, 500);
+  };
+
+  _handleCheckMaDV = async () => {
+    if (!this.state.form.Ma) return false;
+    let filter = { filter: {} };
+    filter.count = true;
+    filter.page = 1;
+    filter.pagesize = 1;
+    filter.filter["Ma"] = this.state.form.Ma;
+    filter.filter = JSON.stringify(filter.filter);
+    filter = new URLSearchParams(filter).toString();
+    let data = await tbDonViHanhChinh.getAll(filter);
+    return data._returned;
   };
 
   _handleDonViChange = (sel) => {
@@ -138,19 +137,7 @@ class ChiTiet extends Component {
   _handleDelete = async () => {
     if (this.state.isInsert) return;
     let { id } = this.props.match.params;
-
-    let { LoginRes } = this.props;
-    if (LoginRes._id === id) {
-      this.props.dispatch(
-        fetchToastNotify({
-          type: CONSTANTS.WARNING,
-          data: "Không thể xóa tài khoản của bạn",
-        })
-      );
-      return;
-    }
-
-    let axiosRes = await tbUsers.deleteById(id);
+    let axiosRes = await tbDonViHanhChinh.deleteById(id);
     if (axiosRes) {
       this.props.dispatch(
         fetchToastNotify({ type: CONSTANTS.SUCCESS, data: "Xóa thành công" })
@@ -179,48 +166,27 @@ class ChiTiet extends Component {
     }
   };
 
-  _handleSaveAndAuthorization = () => {
-    if (cmFunction.formValidate(this, "form")) {
-      this._handleConfirm(
-        this.state.isInsert,
-        this._handleUpdateInfoAndAuthorization,
-        false
-      );
-    } else {
-      confirmAlert({
-        title: "Dữ liệu không hợp lệ",
-        message: "Vui lòng nhập đúng định dạng dữ liệu",
-        buttons: [
-          {
-            label: "Đồng ý",
-            onClick: () => {
-              return;
-            },
-          },
-        ],
-      });
-      return;
-    }
-  };
-
   _handleUpdateInfo = async (stay) => {
-    let { form, isInsert, donviSelected } = this.state;
-    // form.KichHoat = false
-    let axiosRes,
-      axiosReq = cmFunction.clone(form);
-    axiosReq.DonVi = null;
+    let { form, donviSelected, isInsert } = this.state;
+    let axiosReq = form;
+    axiosReq.STT = Number(axiosReq.STT || 9999);
+    axiosReq.DonViCha = null;
+    axiosReq.Cap = 0;
     if (donviSelected) {
-      axiosReq.DonVi = cmFunction.clone(donviSelected);
-      delete axiosReq.DonVi.value;
-      delete axiosReq.DonVi.label;
+      let dvTmp = cmFunction.clone(donviSelected);
+      delete dvTmp.DonViCha;
+      axiosReq.DonViCha = dvTmp;
+      axiosReq.Cap = dvTmp.Cap + 1;
+      delete axiosReq.DonViCha.value;
+      delete axiosReq.DonViCha.label;
     }
 
+    let axiosRes;
     if (isInsert) {
-      // axiosReq.KichHoat = false
-      axiosRes = await tbUsers.create(axiosReq);
+      axiosRes = await tbDonViHanhChinh.create(axiosReq);
     } else {
       let id = this.props.match.params.id;
-      axiosRes = await tbUsers.updateById(id, axiosReq);
+      axiosRes = await tbDonViHanhChinh.updateById(id, axiosReq);
     }
     if (axiosRes) {
       this.props.dispatch(
@@ -235,70 +201,31 @@ class ChiTiet extends Component {
     }
   };
 
-  _handleUpdateInfoAndAuthorization = async () => {
-    let { form, isInsert, donviSelected } = this.state;
-    // form.KichHoat = false
-    let axiosRes,
-      axiosReq = cmFunction.clone(form);
-    axiosReq.DonVi = null;
-    if (donviSelected) {
-      axiosReq.DonVi = cmFunction.clone(donviSelected);
-      delete axiosReq.DonVi.value;
-      delete axiosReq.DonVi.label;
-    }
-
-    if (isInsert) {
-      // axiosReq.KichHoat = false
-      axiosRes = await tbUsers.create(axiosReq);
-    } else {
-      let id = this.props.match.params.id;
-      axiosRes = await tbUsers.updateById(id, axiosReq);
-    }
-    if (axiosRes) {
-      this.props.dispatch(
-        fetchToastNotify({ type: CONSTANTS.SUCCESS, data: "Thành công" })
-      );
-      if (isInsert) {
-        this.state.form = {};
-        this.state.donviSelected = null;
-        this.forceUpdate();
-      }
-      this.props.history.push("/phan-quyen/phan-quyen");
-      // if (!stay) cmFunction.goBack()
-    }
-  };
-
   render() {
-    let { isInsert, form, error } = this.state;
-    let { donvi, donviSelected } = this.state;
+    let { isInsert, form, error, donviSelected } = this.state;
     if (error) return <Page404 />;
     try {
       return (
-        <div className="main portlet fade-in">
+        <div className="main portlet">
           <BreadCrumbs
             title={"Chi tiết"}
             route={[
-              { label: "Quản lý người dùng", value: "/quan-ly/nguoi-dung" },
               {
-                label: "Thông tin người dùng",
-                value: "/quan-ly/nguoi-dung/:id",
+                label: "Quản lý đơn vị hành chính",
+                value: "/quan-ly/don-vi-hanh-chinh",
+              },
+              {
+                label: "Thông tin đơn vị hành chính",
+                value: "/quan-ly/don-vi-hanh-chinh/:id",
               },
             ]}
           />
           <div className="portlet-title">
             <div className="caption">
               <i className="fas fa-grip-vertical" />
-              Thông tin người dùng - thêm hoặc sửa
+              Thông tin đơn vị hành chính
             </div>
             <div className="action">
-              {isInsert && (
-                <button
-                  onClick={() => this._handleSaveAndAuthorization(true)}
-                  className="btn btn-sm btn-outline-primary border-radius">
-                  <i className="fas fa-cogs" />
-                  Lưu và Phân quyền
-                </button>
-              )}
               <button
                 onClick={() => this._handleSave(false)}
                 className="btn btn-sm btn-outline-primary border-radius">
@@ -361,74 +288,36 @@ class ChiTiet extends Component {
               </span>
             </div>
             <div className="collapse show" id="collapseExample">
-              <div className="card-body ">
+              <div className="card-body">
                 <div className="form-body" ref="form">
                   <FormWrapper>
                     <FormInput
-                      id="name"
-                      type="text"
+                      parentClass="col-md-6"
+                      labelClass="col-md-6"
+                      inputClass="col-md-6"
                       required={true}
                       disabled={false}
                       readOnly={false}
-                      label="Tên người dùng"
-                      placeholder="Nhập tên người dùng"
+                      onChange={this._handleChangeElement}
                       defaultValue={form.name || ""}
-                      onChange={this._handleChangeElement}
-                    />
-                  </FormWrapper>
-                  <FormWrapper>
-                    <FormInput
-                      id="account"
                       type="text"
-                      required={true}
-                      disabled={!isInsert}
-                      readOnly={!isInsert}
-                      label="Tài khoản người dùng"
-                      placeholder="Nhập tài khoản người dùng"
-                      defaultValue={form.account || ""}
-                      onChange={this._handleChangeElement}
-                      _handleCheck={this._handleCheckAccount}
+                      id="name"
+                      label="Tên đơn vị"
+                      placeholder="Nhập tên đơn vị"
                     />
-                  </FormWrapper>
-                  <FormWrapper>
                     <FormInput
-                      required={isInsert}
+                      parentClass="col-md-6"
+                      labelClass="col-md-6"
+                      inputClass="col-md-6"
+                      required={true}
                       disabled={false}
                       readOnly={false}
                       onChange={this._handleChangeElement}
-                      defaultValue={form.pwd || ""}
-                      type="password"
-                      id="pwd"
-                      label="Mật khẩu"
-                      placeholder="Nhập mật khẩu"
-                    />
-                  </FormWrapper>
-                  <FormWrapper>
-                    {/* <label className="col-md-3 mb-0">Đơn vị<span className="required">*</span></label>
-                    <div className="col-md-9 pl-0 pr-0">
-                      <AsyncSelect
-                        className=""
-                        classNamePrefix="form-control"
-                        placeholder="Đơn vị ..."
-                        loadOptions={this._handleLoadOptions}
-                        // onInputChange={this._handleInputChange}
-                        onChange={this._handleDonViChange}
-                        value={donviSelected}
-                        isClearable
-                        isSearchable
-                        defaultOptions
-                      /> */}
-                    <FormInput
-                      loadOptions={this._handleLoadOptions}
-                      onChange={this._handleDonViChange}
-                      required={true}
-                      defaultValue={donviSelected}
-                      isClearable={true}
-                      isSearchable={true}
-                      defaultOptions={true}
-                      type="select"
-                      label="Đơn vị"
-                      placeholder="Chọn đơn vị ..."
+                      defaultValue={form.Ma || ""}
+                      type="text"
+                      id="Ma"
+                      label="Mã đơn vị"
+                      // _handleCheck={this._handleCheckMaDV}
                     />
                   </FormWrapper>
                   <FormWrapper>
@@ -436,16 +325,76 @@ class ChiTiet extends Component {
                       parentClass="col-md-6"
                       labelClass="col-md-6"
                       inputClass="col-md-6"
+                      required={true}
+                      disabled={false}
+                      readOnly={false}
+                      pattern=""
+                      onChange={this._handleChangeElement}
+                      defaultValue={form.dientich || ""}
+                      type="number"
+                      id="dientich"
+                      label="Diện tích"
+                      placeholder="Nhập diện tích"
+                    />
+                    <FormInput
+                      parentClass="col-md-6"
+                      labelClass="col-md-6"
+                      inputClass="col-md-6"
+                      required={true}
+                      disabled={false}
+                      readOnly={false}
+                      pattern=""
+                      onChange={this._handleChangeElement}
+                      defaultValue={form.danso || ""}
+                      type="number"
+                      id="danso"
+                      label="Dân số"
+                      placeholder="Nhập dân số"
+                    />
+                  </FormWrapper>
+                  {/* <FormWrapper>
+                    <FormInput
+                      loadOptions={this._handleLoadOptions}
+                      onChange={this._handleDonViChange}
+                      required={false}
+                      defaultValue={donviSelected}
+                      isDisabled={false}
+                      isClearable={true}
+                      isSearchable={true}
+                      defaultOptions={true}
+                      type="select"
+                      label="Trực thuộc"
+                      placeholder="Chọn đơn vị trực thuộc ..."
+                    />
+                  </FormWrapper>
+                  <FormWrapper>
+                    <FormInput
                       required={false}
                       disabled={false}
                       readOnly={false}
                       onChange={this._handleChangeElement}
-                      defaultValue={form.email || ""}
+                      defaultValue={form.DiaChi || ""}
                       type="text"
-                      id="email"
-                      label="Email"
-                      placeholder="Nhập email"
+                      id="DiaChi"
+                      label="Địa chỉ"
+                      placeholder="Nhập địa chỉ"
                     />
+                  </FormWrapper> */}
+                  {/*<FormWrapper>
+                    <FormInput
+                      onChange={this._handleChangeElement}
+                      defaultValue={form.DiaChiBanDo}
+                      type="gmapaddress"
+                      id="DiaChiBanDo"
+                      label="Địa chỉ bản đồ"
+                      placeholder="Nhập địa chỉ bản đồ"
+                    />
+                  </FormWrapper>*/}
+                  {/* <div className="form-group form-row form-custom form-no-spacing">
+                    <label className="col-md-3 mb-0">Địa chỉ bản đồ</label>
+                    <GmapAddress className='form-control' onChange={this._handleChangeElement} value={form.DiaChiBanDo} id="DiaChiBanDo" placeholder="Địa chỉ bản đồ" />
+                  </div> */}
+                  {/* <FormWrapper>
                     <FormInput
                       parentClass="col-md-6"
                       labelClass="col-md-6"
@@ -460,7 +409,22 @@ class ChiTiet extends Component {
                       id="SoDienThoai"
                       label="SĐT liên hệ"
                       errorLabel="SĐT không hợp lệ"
-                      placeholder="Nhập SĐT người dùng"
+                      placeholder="Nhập SĐT liên hệ"
+                    />
+                    <FormInput
+                      parentClass="col-md-6"
+                      labelClass="col-md-6"
+                      inputClass="col-md-6"
+                      required={false}
+                      disabled={false}
+                      readOnly={false}
+                      pattern=""
+                      onChange={this._handleChangeElement}
+                      defaultValue={form.STT || ""}
+                      type="number"
+                      id="STT"
+                      label="STT"
+                      placeholder="Nhập số thứ tự"
                     />
                   </FormWrapper>
                   <FormWrapper>
@@ -472,7 +436,7 @@ class ChiTiet extends Component {
                       id="GhiChu"
                       label="Ghi chú"
                     />
-                  </FormWrapper>
+                  </FormWrapper> */}
                   <FormWrapper>
                     <FormInput
                       type="checkbox"

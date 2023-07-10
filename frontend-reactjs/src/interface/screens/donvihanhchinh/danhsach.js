@@ -12,99 +12,123 @@ import { fetchToastNotify } from "../../../controller/redux/app-reducer";
 import { Link } from "react-router-dom";
 import { confirmAlert } from "react-confirm-alert";
 import { Other } from "interface/screens/error";
-import { __DEV__, SUPER } from "../../../common/ulti/constants";
+import { __DEV__ } from "../../../common/ulti/constants";
 import * as CONSTANTS from "common/ulti/constants";
-import * as tbUsers from "controller/services/tbUsersServices";
-import * as tbDonVi from "controller/services/tbDonViServices";
+// import * as tbDonVi from "controller/services/tbDonViServices";
+import * as tbDonViHanhChinh from "controller/services/tbDonViHanhChinhServices";
 import * as cmFunction from "common/ulti/commonFunction";
-import * as Excel from "exceljs";
-import { saveAs } from "file-saver";
 
 class DanhSach extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      searchToggle: false,
       danhsach: [],
       form: {},
-
+      nameSelected: "",
       cbCheckAll: false,
       searchIsOpen: false,
-
+      search: {},
       page: CONSTANTS.DEFAULT_PAGE,
       pagesize: CONSTANTS.DEFAULT_PAGESIZE,
       _size: 0,
       _total_pages: 0,
       filter: null,
-      search: {},
-      danhsachDonVi: [],
-      donviSelected: null,
-
-      error: false,
-      searchToggle: false,
     };
   }
 
   componentDidMount = async () => {
-    this._getDanhSachNguoiDung(this._createFilter());
-
-    try {
-      let danhsachDonVi,
-        donviSelected,
-        query = new URLSearchParams({
-          sort_by: "STT",
-          count: true,
-          page: 1,
-          pagesize: 1000,
-        }).toString();
-      console.log("query: ", query);
-
-      danhsachDonVi = await tbDonVi.getAll(query);
-      danhsachDonVi =
-        danhsachDonVi && danhsachDonVi._embedded ? danhsachDonVi._embedded : [];
-      danhsachDonVi = cmFunction.convertSelectOptions(
-        danhsachDonVi,
-        "_id.$oid",
-        "Ten"
-      );
-      donviSelected = danhsachDonVi[0];
-
-      this.state.danhsachDonVi = danhsachDonVi;
-
-      if (isEmpty(donviSelected)) return;
-    } catch (e) {
-      this.state.error = true;
-      this.forceUpdate();
-    }
+    this._getDanhSachDonViHanhChinh(this._createFilter());
+    this._getSearch();
   };
 
   componentDidUpdate(prevProps) {
     let { location } = this.props;
     if (location !== prevProps.location) {
-      this._getDanhSachNguoiDung(this._createFilter());
+      this._getDanhSachDonViHanhChinh(this._createFilter());
     }
   }
+  componentWillUnmount = () => {
+    if (!window.location.href.includes("quan-ly-tai-lieu-moi")) {
+      // alert('Xóa Storage khi chuyển khỏi hồ sơ mới');
+      // window.localStorage.removeItem("searchDetails")
+      window.sessionStorage.removeItem("searchDetails");
+    }
+  };
+  _getSearch = () => {
+    console.log(
+      'window.location.href.includes("quan-ly-tai-lieu-moi"):',
+      window.location.href.includes("quan-ly-tai-lieu-moi")
+    );
+    if (window.location.href.includes("quan-ly-tai-lieu-moi")) {
+      // const {searchData, dvSelected, lvSelected, cttSelected, tthcSelected, doituongSelected, loaiHsSelected, khoSelected} = window.localStorage.getItem("searchDetails")?JSON.parse(window.localStorage.getItem("searchDetails")):"{searchDetails:''}";
+      const { nameSelected } = window.sessionStorage.getItem("searchDetails")
+        ? JSON.parse(window.sessionStorage.getItem("searchDetails"))
+        : "{searchDetails:''}";
+      this.state.nameSelected = nameSelected || "";
 
+      this.forceUpdate();
+    }
+  };
+  _updateStorage = () => {
+    // window.localStorage.setItem("searchDetails",JSON.stringify({
+    window.sessionStorage.setItem(
+      "searchDetails",
+      JSON.stringify({
+        nameSelected: this.state.nameSelected,
+      })
+    );
+  };
   _createFilter = () => {
     let parsed = queryString.parse(this.props.location.search);
-
+    console.log("this.props.location.search: ", this.props.location.search);
     let { page, pagesize, filter } = parsed;
-
     filter = filter ? cmFunction.decode(filter) : filter;
-
     parsed.page = parseInt(page) || CONSTANTS.DEFAULT_PAGE;
     parsed.pagesize = parseInt(pagesize) || CONSTANTS.DEFAULT_PAGESIZE;
     parsed.count = true;
-    parsed.keys = JSON.stringify({ pwd: 0 });
+    parsed.sort_by = "STT";
     !filter ? delete parsed.filter : (parsed.filter = filter);
     this.state.page = parseInt(page) || CONSTANTS.DEFAULT_PAGE;
     this.state.pagesize = parseInt(pagesize) || CONSTANTS.DEFAULT_PAGESIZE;
     this.state.filter = filter;
     this.forceUpdate();
-    return new URLSearchParams(parsed).toString();
+    const a = new URLSearchParams(parsed).toString();
+    console.log("f _createFilter return: ", a);
+    return a;
+    // return new URLSearchParams(parsed).toString();
+  };
+  _createFilterSearch = () => {
+    let { search } = this.state;
+    let parsed = queryString.parse(this.props.location.search);
+    let { page, pagesize } = parsed;
+    let filter = {};
+    // if (search.Ten) filter['NguoiDung.name'] = cmFunction.regexText(search.Ten.trim())
+    // if (donviSelected) filter = { "DonVi.Ma": donviSelected.Ma };
+    if (search.name)
+      filter["$or"] = [
+        { name: cmFunction.regexText(search.name.trim()) },
+        { Ma: cmFunction.regexText(search.name.trim()) },
+      ];
+
+    parsed.page = parseInt(page) || CONSTANTS.DEFAULT_PAGE;
+    parsed.pagesize = parseInt(pagesize) || CONSTANTS.DEFAULT_PAGESIZE;
+    parsed.count = true;
+    parsed.filter = JSON.stringify(filter);
+    // parsed.keys = JSON.stringify({ pwd: 0 });
+
+    this.state.page = parseInt(page) || CONSTANTS.DEFAULT_PAGE;
+    this.state.pagesize = parseInt(pagesize) || CONSTANTS.DEFAULT_PAGESIZE;
+    this.forceUpdate();
+    console.log("parsed: ", parsed);
+    const a = new URLSearchParams(parsed).toString();
+    console.log("_createFilterSearch: ", a);
+    this._updateStorage();
+    return a;
   };
 
-  _getDanhSachNguoiDung = async (query) => {
-    let data = await tbUsers.getAll(query);
+  _getDanhSachDonViHanhChinh = async (query) => {
+    let data = await tbDonViHanhChinh.getAll(query);
     this.state.danhsach = data && data._embedded ? data._embedded : [];
     this.state._size = data._size || 0;
     this.state._total_pages = data._total_pages || 0;
@@ -133,23 +157,12 @@ class DanhSach extends Component {
   };
 
   _handleDeleteMulti = async () => {
-    let { LoginRes } = this.props;
     let { danhsach } = this.state,
       axiosReq = [],
       count = 0;
-
     danhsach.forEach((item, index) => {
-      if (item.checked && LoginRes._id !== (item._id.$oid || item._id)) {
-        axiosReq.push(tbUsers.deleteById(item._id.$oid || item._id));
-      }
-      if (item.checked && LoginRes._id === (item._id.$oid || item._id)) {
-        this.props.dispatch(
-          fetchToastNotify({
-            type: CONSTANTS.WARNING,
-            data: "Không thể xóa tài khoản của bạn",
-          })
-        );
-      }
+      if (item.checked)
+        axiosReq.push(tbDonViHanhChinh.deleteById(item._id.$oid || item._id));
     });
 
     if (!axiosReq.length) return;
@@ -178,7 +191,7 @@ class DanhSach extends Component {
         data: "Xóa thành công " + count + " dữ liệu",
       })
     );
-    this._getDanhSachNguoiDung(this._createFilter());
+    this._getDanhSachDonVi(this._createFilter());
   };
 
   _handleLockMulti = async () => {
@@ -187,7 +200,7 @@ class DanhSach extends Component {
       count = 0;
     danhsach.forEach((item, index) => {
       if (item.checked)
-        axiosReq.push(tbUsers.lockById(item._id.$oid || item._id));
+        axiosReq.push(tbDonViHanhChinh.lockById(item._id.$oid || item._id));
     });
 
     if (!axiosReq.length) return;
@@ -216,26 +229,16 @@ class DanhSach extends Component {
         data: "Khóa thành công " + count + " dữ liệu",
       })
     );
-    this._getDanhSachNguoiDung(this._createFilter());
+    this._getDanhSachDonViHanhChinh(this._createFilter());
   };
 
   _handleDeleteOne = async (id) => {
-    let { LoginRes } = this.props;
-    if (LoginRes._id === id) {
-      this.props.dispatch(
-        fetchToastNotify({
-          type: CONSTANTS.WARNING,
-          data: "Không thể xóa tài khoản của bạn",
-        })
-      );
-      return;
-    }
-    let axiosRes = await tbUsers.deleteById(id);
+    let axiosRes = await tbDonViHanhChinh.deleteById(id);
     if (axiosRes) {
       this.props.dispatch(
         fetchToastNotify({ type: CONSTANTS.SUCCESS, data: "Xóa thành công" })
       );
-      this._getDanhSachNguoiDung(this._createFilter());
+      this._getDanhSachDonViHanhChinh(this._createFilter());
     }
   };
 
@@ -255,165 +258,10 @@ class DanhSach extends Component {
     this.forceUpdate();
   };
 
-  _handleConfirmApprove = (id, item) => {
-    confirmAlert({
-      title: "Phê duyệt tài khoản",
-      message: "Bạn muốn phê duyệt tài khoản này",
-      buttons: [
-        {
-          label: "Không",
-          onClick: () => {
-            return;
-          },
-        },
-        {
-          label: "Có",
-          onClick: () => this._handleApprove(id, item),
-        },
-      ],
-    });
-  };
-
-  _handleApprove = async (id, item) => {
-    item.KichHoat = true;
-    let axiosReq = item; //{ KichHoat: true, code: code }//await tbUsers.getById(id);
-    let axiosRes = await tbUsers.updateById(id, axiosReq);
-    if (axiosRes) {
-      this.props.dispatch(
-        fetchToastNotify({ type: CONSTANTS.SUCCESS, data: "Thành công" })
-      );
-      this._getDanhSachNguoiDung(this._createFilter());
-    } else {
-      this.props.dispatch(
-        fetchToastNotify({ type: CONSTANTS.ERROR, data: "Không thành công" })
-      );
-    }
-  };
-
-  _handleConfirmUnapprove = (id, item) => {
-    confirmAlert({
-      title: "Bỏ phê duyệt tài khoản",
-      message: "Bạn muốn bỏ phê duyệt tài khoản này",
-      buttons: [
-        {
-          label: "Không",
-          onClick: () => {
-            return;
-          },
-        },
-        {
-          label: "Có",
-          onClick: () => this._handleUnapprove(id, item),
-        },
-      ],
-    });
-  };
-
-  _handleUnapprove = async (id, item) => {
-    item.KichHoat = false;
-    let axiosReq = item; //{ KichHoat: false, code: code }//await tbUsers.getById(id);
-    let axiosRes = await tbUsers.updateById(id, axiosReq);
-    if (axiosRes) {
-      this.props.dispatch(
-        fetchToastNotify({ type: CONSTANTS.SUCCESS, data: "Thành công" })
-      );
-      // window.location.reload();
-      this._getDanhSachNguoiDung(this._createFilter());
-    } else {
-      this.props.dispatch(
-        fetchToastNotify({ type: CONSTANTS.ERROR, data: "Không thành công" })
-      );
-    }
-  };
-
-  _handleDonViChange = (sel) => {
-    this.state.donviSelected = sel;
-    this.forceUpdate();
-  };
-  _handleChangeSearchElement = (evt) => {
-    this.state.search[evt.target.id] = evt.target.value;
-    this.forceUpdate();
-  };
-
-  _handleSearch = () => {
-    let { donviSelected, search } = this.state;
-    if (donviSelected || search.Ten) {
-      this._getDanhSachNguoiDung(this._createFilterSearch());
-    } else {
-      this._getDanhSachNguoiDung(this._createFilter());
-    }
-  };
-  _handleKeyDow = (evt) => {
-    if (evt.key === "Enter") {
-      this._handleSearch();
-      this.forceUpdate();
-    }
-  };
-
-  _createFilterSearch = () => {
-    let { donviSelected, search } = this.state;
-    let parsed = queryString.parse(this.props.location.search);
-    let { page, pagesize } = parsed;
-    let filter = {};
-    // if (search.Ten) filter['NguoiDung.name'] = cmFunction.regexText(search.Ten.trim())
-    if (donviSelected) filter = { "DonVi.Ma": donviSelected.Ma };
-    if (search.Ten)
-      filter["$or"] = [
-        { name: cmFunction.regexText(search.Ten.trim()) },
-        { account: cmFunction.regexText(search.Ten.trim()) },
-      ];
-
-    parsed.page = parseInt(page) || CONSTANTS.DEFAULT_PAGE;
-    parsed.pagesize = parseInt(pagesize) || CONSTANTS.DEFAULT_PAGESIZE;
-    parsed.count = true;
-    parsed.filter = JSON.stringify(filter);
-    parsed.keys = JSON.stringify({ pwd: 0 });
-
-    this.state.page = parseInt(page) || CONSTANTS.DEFAULT_PAGE;
-    this.state.pagesize = parseInt(pagesize) || CONSTANTS.DEFAULT_PAGESIZE;
-    this.forceUpdate();
-
-    return new URLSearchParams(parsed).toString();
-  };
-
   // EXPORT EXCEL
-  // _handleExportExcel = (ref) => {
-
-  //   // ví dụ xuất excel tại bảng đang có
-  //   let myRows = [['Danh sách quản lý người dùng']], maxCol = 0
-  //   let table = ReactDOM.findDOMNode(this.refs[`${ref}`]);
-  //   let filter = this.state.filter
-  //   for (let tbindex = 0; tbindex < table.children.length; tbindex++) {
-  //     let tb = table.children[`${tbindex}`]
-  //     for (let trindex = 0; trindex < tb.children.length; trindex++) {
-  //       let row = []
-  //       let tr = tb.children[`${trindex}`]
-  //       maxCol = tr.children.length > maxCol ? tr.children.length : maxCol
-  //       for (let thindex = 0; thindex < tr.children.length; thindex++) {
-  //         let th = tr.children[`${thindex}`]
-  //         row.push(th.innerText)
-  //       }
-  //       myRows.push(row)
-  //     }
-  //   }
-  //   // set colspan và rowspan
-  //   let merge = [
-  //     // { s: { r: 0, c: 0 }, e: { r: 0, c: maxCol } },
-  //     // { s: { r: 1, c: 6 }, e: { r: 1, c: 7 } }
-  //   ]
-  //   // xuất file
-  //   let ws = XLSX.utils.aoa_to_sheet(myRows);
-  //   ws["!merges"] = merge;
-  //   let wb = XLSX.utils.book_new();
-  //   //add thêm nhiều Sheet vào đây cũng đc
-  //   XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-  //   let date = cmFunction.timestamp2DateString(moment().valueOf())
-  //   let name = 'DSQuanLyNguoiDung_' + this.state.page + '_' + date
-  //   XLSX.writeFile(wb, name + ".xlsx")
-  // }
   _handleExportExcel = (ref) => {
     // ví dụ xuất excel tại bảng đang có
-    let myRows = [],
+    let myRows = [["Tiêu đề của bảng"]],
       maxCol = 0;
     let table = ReactDOM.findDOMNode(this.refs[`${ref}`]);
     for (let tbindex = 0; tbindex < table.children.length; tbindex++) {
@@ -422,78 +270,72 @@ class DanhSach extends Component {
         let row = [];
         let tr = tb.children[`${trindex}`];
         maxCol = tr.children.length > maxCol ? tr.children.length : maxCol;
-        for (let thindex = 1; thindex < tr.children.length - 1; thindex++) {
+        for (let thindex = 0; thindex < tr.children.length; thindex++) {
           let th = tr.children[`${thindex}`];
           row.push(th.innerText);
         }
         myRows.push(row);
       }
     }
-    let date = cmFunction.timestamp2DateString(moment().valueOf());
-    let name = "DSNguoiDung_" + this.state.page + "_" + date;
-    const wb = new Excel.Workbook();
-    const ws = wb.addWorksheet("DSNguoiDung");
-    ws.addRows(myRows);
-    ws.getRow(1).font = {
-      name: "Times New Roman",
-      family: 2,
-      size: 10,
-      bold: true,
-    };
-    for (let i = 0; i < myRows[1].length; i++) {
-      ws.getCell(String.fromCharCode(65 + i) + 1).alignment = {
-        vertical: "top",
-        horizontal: "center",
-      };
-    }
-    for (let i = 0; i < myRows.length; i++) {
-      for (let j = 0; j < myRows[1].length; j++) {
-        ws.getCell(String.fromCharCode(65 + j) + (i + 1)).border = {
-          top: { style: "thin", color: { argb: "00000000" } },
-          left: { style: "thin", color: { argb: "00000000" } },
-          bottom: { style: "thin", color: { argb: "00000000" } },
-          right: { style: "thin", color: { argb: "00000000" } },
-        };
-      }
-    }
-    wb.xlsx.writeBuffer().then((data) => {
-      const blob = new Blob([data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8",
-      });
-      saveAs(blob, name + ".xlsx");
-    });
+    // set colspan và rowspan
+    let merge = [
+      // { s: { r: 0, c: 0 }, e: { r: 0, c: maxCol } },
+      // { s: { r: 1, c: 6 }, e: { r: 1, c: 7 } }
+    ];
+    // xuất file
+    let ws = XLSX.utils.aoa_to_sheet(myRows);
+    ws["!merges"] = merge;
+    let wb = XLSX.utils.book_new();
+    //add thêm nhiều Sheet vào đây cũng đc
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    XLSX.writeFile(wb, "DataTable.xlsx");
   };
   _searchToggle = () => {
     this.state.searchToggle = !this.state.searchToggle;
     this.forceUpdate();
   };
+  _handleChangeSearchElement = (evt) => {
+    console.log("evt.target.id: ", evt.target.id);
+    console.log("evt.target.value: ", evt.target.value);
+    this.state.search[evt.target.id] = evt.target.value;
+    this.forceUpdate();
+  };
+  _handleKeyDow = (evt) => {
+    if (evt.key === "Enter") {
+      this._handleSearch();
+      this.forceUpdate();
+    }
+  };
+  _handleSearch = () => {
+    let { search } = this.state;
+    if (search.name) {
+      this._getDanhSachDonViHanhChinh(this._createFilterSearch());
+    } else {
+      this._getDanhSachDonViHanhChinh(this._createFilter());
+    }
+  };
 
   render() {
-    let {
-      danhsach,
-      cbCheckAll,
-      danhsachDonVi,
-      donviSelected,
-      search,
-      searchToggle,
-    } = this.state;
-    let { page, pagesize, _size, _total_pages } = this.state;
-    let { LoginRes } = this.props;
-    let checkSuperAdmin = LoginRes.roles === SUPER.roles;
+    let { danhsach, cbCheckAll } = this.state;
+    let { page, pagesize, _size, _total_pages, searchToggle, search } =
+      this.state;
     try {
       return (
         <React.Fragment>
           <div className="main portlet fade-in">
             <BreadCrumbs
-              title={"Danh sách người dùng"}
+              title={"Danh sách đơn vị hành chính"}
               route={[
-                { label: "Quản lý người dùng", value: "/quan-ly/nguoi-dung" },
+                {
+                  label: "Quản lý đơn vị hành chính",
+                  value: "/don-vi-hanh-chinh",
+                },
               ]}
             />
             <div className="portlet-title">
               <div className="caption">
                 <i className="fas fa-grip-vertical" />
-                Danh sách người dùng
+                Danh sách đơn vị hành chính
               </div>
               <div className="action">
                 {/* <button onClick={this._handleSearchToggle} className="btn btn-sm btn-outline-info border-radius" title="Tìm kiếm">
@@ -511,15 +353,16 @@ class DanhSach extends Component {
                   title="Tìm kiếm">
                   <i className="fas fa-search" />
                 </button>
+                {/* <a target="_blank" href={"http://localhost:9000/report/index.html?file=BaoCaoMau" + "&services=http://localhost:3000/api/statistic/bao-cao-mau&token=4CB1tA2AzwSbmWEA4VGWU3lFafOJey"} className="btn btn-sm btn-outline-info border-radius" title="Xuất báo cáo">
+                  <i className="fas fa-print"></i>
+                </a> */}
               </div>
             </div>
-            {/* <Search isOpen={searchIsOpen} history={this.props.history} /> */}
-
             {searchToggle && (
               <div className="card-body pt-3 pb-3 card-search">
                 <div className="form-body">
                   <div className="form-row form-group form-custom">
-                    <div className="col-md-4">
+                    {/* <div className="col-md-4">
                       <Select
                         className=""
                         classNamePrefix="form-control"
@@ -530,16 +373,16 @@ class DanhSach extends Component {
                         isClearable={true}
                         onChange={this._handleDonViChange}
                       />
-                    </div>
+                    </div> */}
                     <div className="col-md-4">
                       <input
                         className="form-control"
                         onChange={this._handleChangeSearchElement}
                         onKeyDown={this._handleKeyDow}
-                        value={search.Ten || ""}
+                        value={search.name || ""}
                         type="text"
-                        id="Ten"
-                        placeholder="Tìm kiếm người dùng"
+                        id="name"
+                        placeholder="Tìm kiếm đơn vị hành chính"
                       />
                     </div>
                     <div className="col-md-4">
@@ -554,15 +397,15 @@ class DanhSach extends Component {
                 </div>
               </div>
             )}
+            {/* <Search isOpen={searchIsOpen} history={this.props.history} /> */}
             <div className="card">
               <div className="card-header">
                 <Link
-                  to={"/quan-ly/nguoi-dung/0"}
+                  to={"/quan-ly/don-vi-hanh-chinh/0"}
                   className="btn btn-sm btn-outline-primary border-radius">
                   <i className="fas fa-plus" />
                   Thêm
                 </Link>
-
                 <button
                   onClick={() => this._handleConfirmDelete(true, 0)}
                   className="btn btn-sm btn-outline-danger border-radius">
@@ -589,12 +432,13 @@ class DanhSach extends Component {
                           />
                         </th>
                         <th>STT</th>
-                        <th>Họ tên</th>
-                        <th>Tài khoản</th>
-                        <th>Email</th>
-                        <th>Đơn vị</th>
+                        <th>Mã đơn vị</th>
+                        <th>Tên đơn vị</th>
+                        <th>
+                          Diện tích km<sup>2</sup>
+                        </th>
+                        <th>Dân số </th>
                         <th>Trạng thái</th>
-                        {/* {checkSuperAdmin && <th>***</th>} */}
                         <th>Hành động</th>
                       </tr>
                     </thead>
@@ -611,52 +455,25 @@ class DanhSach extends Component {
                               />
                             </td>
                             <td className="text-center">{index + 1}</td>
+                            <td>{item.Ma}</td>
                             <td>{item.name}</td>
-                            <td>{item.account}</td>
-                            <td>{item.email}</td>
-                            <td>{item.DonVi ? item.DonVi.Ten : ""}</td>
-                            <td>
-                              {item.KichHoat ? "Kích hoạt" : "Chưa kích hoạt"}
-                            </td>
-                            {/* {checkSuperAdmin && <td><span style={{ color: 'red' }}>{item.isActive ? '' : 'Đã xóa'}</span></td>} */}
+                            <td>{item.dientich}</td>
+                            <td>{item.danso}</td>
+                            {/* <td>{item.Ma}</td> */}
+                            {/* <td>{item.DonViCha ? item.DonViCha.Ten : ""}</td>
+                            <td>{item.SoDienThoai}</td>
+                            <td>{item.DiaChi}</td> */}
+                            <td>{item.KichHoat ? "Kích hoạt" : " "}</td>
                             <td>
                               <Link
                                 to={
-                                  "/quan-ly/nguoi-dung/" + item._id.$oid ||
-                                  item._id
+                                  "/quan-ly/don-vi-hanh-chinh/" +
+                                    item._id.$oid || item._id
                                 }
                                 title="Chi tiết"
                                 className="btn btn-sm btn-outline-info border-radius">
                                 <i className="fas fa-pencil-alt" />
                               </Link>
-                              <button
-                                onClick={() =>
-                                  this._handleConfirmApprove(
-                                    item._id.$oid || item._id,
-                                    item
-                                  )
-                                }
-                                title="Phê duyệt tài khoản"
-                                className="btn btn-sm btn-outline-success border-radius"
-                                style={{
-                                  display: item.KichHoat ? "none" : "inline",
-                                }}>
-                                <i className="fas fa-user-check"></i>
-                              </button>
-                              <button
-                                onClick={() =>
-                                  this._handleConfirmUnapprove(
-                                    item._id.$oid || item._id,
-                                    item
-                                  )
-                                }
-                                title="Bỏ phê duyệt tài khoản"
-                                className="btn btn-sm btn-outline-primary border-radius"
-                                style={{
-                                  display: item.KichHoat ? "inline" : "none",
-                                }}>
-                                <i className="fas fa-ban"></i>
-                              </button>
                               <button
                                 onClick={() =>
                                   this._handleConfirmDelete(
