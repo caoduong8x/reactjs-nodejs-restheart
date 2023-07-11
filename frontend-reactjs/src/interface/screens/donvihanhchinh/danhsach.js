@@ -25,7 +25,7 @@ class DanhSach extends Component {
       searchToggle: false,
       danhsach: [],
       form: {},
-      nameSelected: "",
+
       cbCheckAll: false,
       searchIsOpen: false,
       search: {},
@@ -49,24 +49,22 @@ class DanhSach extends Component {
     }
   }
   componentWillUnmount = () => {
-    if (!window.location.href.includes("quan-ly-tai-lieu-moi")) {
+    if (!window.location.href.includes("don-vi-hanh-chinh")) {
       // alert('Xóa Storage khi chuyển khỏi hồ sơ mới');
       // window.localStorage.removeItem("searchDetails")
       window.sessionStorage.removeItem("searchDetails");
     }
   };
   _getSearch = () => {
-    console.log(
-      'window.location.href.includes("quan-ly-tai-lieu-moi"):',
-      window.location.href.includes("quan-ly-tai-lieu-moi")
-    );
-    if (window.location.href.includes("quan-ly-tai-lieu-moi")) {
+    if (window.location.href.includes("don-vi-hanh-chinh")) {
       // const {searchData, dvSelected, lvSelected, cttSelected, tthcSelected, doituongSelected, loaiHsSelected, khoSelected} = window.localStorage.getItem("searchDetails")?JSON.parse(window.localStorage.getItem("searchDetails")):"{searchDetails:''}";
-      const { nameSelected } = window.sessionStorage.getItem("searchDetails")
+      const { searchData, searchToggle } = window.sessionStorage.getItem(
+        "searchDetails"
+      )
         ? JSON.parse(window.sessionStorage.getItem("searchDetails"))
         : "{searchDetails:''}";
-      this.state.nameSelected = nameSelected || "";
-
+      this.state.search = searchData || {};
+      this.state.searchToggle = searchToggle || false;
       this.forceUpdate();
     }
   };
@@ -75,7 +73,8 @@ class DanhSach extends Component {
     window.sessionStorage.setItem(
       "searchDetails",
       JSON.stringify({
-        nameSelected: this.state.nameSelected,
+        searchData: this.state.search,
+        searchToggle: this.state.searchToggle,
       })
     );
   };
