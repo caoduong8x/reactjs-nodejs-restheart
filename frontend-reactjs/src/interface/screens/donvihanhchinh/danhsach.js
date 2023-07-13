@@ -36,6 +36,7 @@ class DanhSach extends Component {
       _size: 0,
       _total_pages: 0,
       filter: null,
+      table: null,
     };
   }
 
@@ -244,11 +245,12 @@ class DanhSach extends Component {
   };
 
   // EXPORT EXCEL
-  _handleExportExcel = (ref) => {
+  _handleExportExcel = (table) => {
     // ví dụ xuất excel tại bảng đang có
+    console.log("table", table);
     let myRows = [["Tiêu đề của bảng"]],
       maxCol = 0;
-    let table = ReactDOM.findDOMNode(this.refs[`${ref}`]);
+    // let table = ReactDOM.findDOMNode(this.refs[`${ref}`]);
     for (let tbindex = 0; tbindex < table.children.length; tbindex++) {
       let tb = table.children[`${tbindex}`];
       for (let trindex = 0; trindex < tb.children.length; trindex++) {
@@ -299,7 +301,9 @@ class DanhSach extends Component {
       this._getDanhSachDonViHanhChinh(this._createFilter());
     }
   };
-
+  _handleSetTable = (table) => {
+    this.state.table = table;
+  };
   render() {
     let { danhsach, cbCheckAll } = this.state;
     let { page, pagesize, _size, _total_pages, searchToggle, search } =
@@ -328,7 +332,7 @@ class DanhSach extends Component {
                   <i className="fas fa-search" />
                 </button> */}
                 <button
-                  onClick={() => this._handleExportExcel("dataTable")}
+                  onClick={() => this._handleExportExcel(this.state.table)}
                   className="btn btn-sm btn-outline-info border-radius"
                   title="Xuất excel">
                   <i className="fas fa-download" />
@@ -383,12 +387,32 @@ class DanhSach extends Component {
                         placeholder="Tìm kiếm đơn vị hành chính"
                       />
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-5">
                       <button
                         onClick={this._handleSearch}
                         className="btn btn-outline-primary border-radius ">
                         <i className="fas fa-search" />
                         Tìm kiếm
+                      </button>
+                      <button
+                        onClick={() => {
+                          this.setState({ ...this.state, search: {} });
+                          console.log("Search:", this.state.search.name);
+                          this._getDanhSachDonViHanhChinh(this._createFilter());
+                          this._getSearch();
+                        }}
+                        className="btn btn-outline-primary border-radius ">
+                        <i className="fas fa-cubes" />
+                        Hiện tất cả
+                      </button>
+                      <button
+                        onClick={() => {
+                          this.setState({ ...this.state, search: {} });
+                          // this.state.search = {};
+                        }}
+                        className="btn btn-outline-primary border-radius ">
+                        <i className="fas fa-eraser" />
+                        Clear
                       </button>
                     </div>
                   </div>
@@ -418,6 +442,7 @@ class DanhSach extends Component {
                     page={this.state.page}
                     pagesize={this.state.pagesize}
                     onDeleteOne={(id) => this._handleConfirmDelete(false, id)}
+                    onExportExcel={(table) => this._handleSetTable(table)}
                     ref={(el) => (this.componentRef = el)}
                   />
                 </div>
@@ -450,6 +475,7 @@ class ComponentToPrint extends React.Component {
       modalIsOpen: false,
       numPages: null,
       pageNumber: 1,
+      table: null,
     };
   }
   _handleCheckAll = (evt) => {
@@ -467,6 +493,9 @@ class ComponentToPrint extends React.Component {
     });
     this.forceUpdate();
   };
+  componentDidMount() {
+    this.state.table = ReactDOM.findDOMNode(this.refs[`${"dataTable"}`]);
+  }
 
   render() {
     let { danhsach, printButtonClicked, page, pagesize } = this.props;
@@ -539,7 +568,7 @@ class ComponentToPrint extends React.Component {
                       onClick={() => {
                         this.props.onDeleteOne(item._id.$oid || item._id);
                       }}
-                      title="Xóaaaa"
+                      title="Xóa"
                       className="btn btn-sm btn-outline-danger border-radius">
                       <i className="fas fa-trash" />
                     </button>
@@ -549,6 +578,7 @@ class ComponentToPrint extends React.Component {
             })}
           </tbody>
         </table>
+        {this.props.onExportExcel(this.state.table)}
       </div>
     );
   }
