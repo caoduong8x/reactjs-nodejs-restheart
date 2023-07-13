@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import ReactToPrint from "react-to-print";
 import { connect } from "react-redux";
 import { BreadCrumbs, Search, Pagination } from "interface/components";
 import axios from "axios";
@@ -17,16 +18,17 @@ import * as CONSTANTS from "common/ulti/constants";
 // import * as tbDonVi from "controller/services/tbDonViServices";
 import * as tbDonViHanhChinh from "controller/services/tbDonViHanhChinhServices";
 import * as cmFunction from "common/ulti/commonFunction";
+import { Document, Page, pdfjs } from "react-pdf";
 
 class DanhSach extends Component {
   constructor(props) {
     super(props);
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
     this.state = {
       searchToggle: false,
       danhsach: [],
       form: {},
-      nameSelected: "",
-      cbCheckAll: false,
       searchIsOpen: false,
       search: {},
       page: CONSTANTS.DEFAULT_PAGE,
@@ -49,24 +51,22 @@ class DanhSach extends Component {
     }
   }
   componentWillUnmount = () => {
-    if (!window.location.href.includes("quan-ly-tai-lieu-moi")) {
+    if (!window.location.href.includes("don-vi-hanh-chinh")) {
       // alert('Xóa Storage khi chuyển khỏi hồ sơ mới');
       // window.localStorage.removeItem("searchDetails")
       window.sessionStorage.removeItem("searchDetails");
     }
   };
   _getSearch = () => {
-    console.log(
-      'window.location.href.includes("quan-ly-tai-lieu-moi"):',
-      window.location.href.includes("quan-ly-tai-lieu-moi")
-    );
-    if (window.location.href.includes("quan-ly-tai-lieu-moi")) {
+    if (window.location.href.includes("don-vi-hanh-chinh")) {
       // const {searchData, dvSelected, lvSelected, cttSelected, tthcSelected, doituongSelected, loaiHsSelected, khoSelected} = window.localStorage.getItem("searchDetails")?JSON.parse(window.localStorage.getItem("searchDetails")):"{searchDetails:''}";
-      const { nameSelected } = window.sessionStorage.getItem("searchDetails")
+      const { searchData, searchToggle } = window.sessionStorage.getItem(
+        "searchDetails"
+      )
         ? JSON.parse(window.sessionStorage.getItem("searchDetails"))
         : "{searchDetails:''}";
-      this.state.nameSelected = nameSelected || "";
-
+      this.state.search = searchData || {};
+      this.state.searchToggle = searchToggle || false;
       this.forceUpdate();
     }
   };
@@ -75,7 +75,8 @@ class DanhSach extends Component {
     window.sessionStorage.setItem(
       "searchDetails",
       JSON.stringify({
-        nameSelected: this.state.nameSelected,
+        searchData: this.state.search,
+        searchToggle: this.state.searchToggle,
       })
     );
   };
@@ -191,7 +192,7 @@ class DanhSach extends Component {
         data: "Xóa thành công " + count + " dữ liệu",
       })
     );
-    this._getDanhSachDonVi(this._createFilter());
+    this._getDanhSachDonViHanhChinh(this._createFilter());
   };
 
   _handleLockMulti = async () => {
@@ -240,22 +241,6 @@ class DanhSach extends Component {
       );
       this._getDanhSachDonViHanhChinh(this._createFilter());
     }
-  };
-
-  _handleCheckAll = (evt) => {
-    this.state.danhsach.forEach((item, index) => {
-      item.checked = evt.target.checked;
-    });
-    this.state.cbCheckAll = evt.target.checked;
-    this.forceUpdate();
-  };
-
-  _handleCheckItem = (evt) => {
-    this.state.danhsach.forEach((item, index) => {
-      if (item._id.$oid === evt.target.id || item._id === evt.target.id)
-        item.checked = evt.target.checked;
-    });
-    this.forceUpdate();
   };
 
   // EXPORT EXCEL
@@ -319,6 +304,7 @@ class DanhSach extends Component {
     let { danhsach, cbCheckAll } = this.state;
     let { page, pagesize, _size, _total_pages, searchToggle, search } =
       this.state;
+
     try {
       return (
         <React.Fragment>
@@ -353,6 +339,18 @@ class DanhSach extends Component {
                   title="Tìm kiếm">
                   <i className="fas fa-search" />
                 </button>
+                <ReactToPrint
+                  trigger={() => (
+                    <button
+                      disabled={!danhsach.length}
+                      className="btn btn-sm btn-outline-info border-radius">
+                      <i className="fas fa-print" />
+                      In kết quả
+                    </button>
+                  )}
+                  content={() => this.componentRef}
+                />
+
                 {/* <a target="_blank" href={"http://localhost:9000/report/index.html?file=BaoCaoMau" + "&services=http://localhost:3000/api/statistic/bao-cao-mau&token=4CB1tA2AzwSbmWEA4VGWU3lFafOJey"} className="btn btn-sm btn-outline-info border-radius" title="Xuất báo cáo">
                   <i className="fas fa-print"></i>
                 </a> */}
@@ -415,82 +413,13 @@ class DanhSach extends Component {
               </div>
               <div className="card-body fix-first">
                 <div className="table-fix-head">
-                  <table
-                    className="table table-bordered"
-                    id="dataTable"
-                    width="100%"
-                    cellSpacing="0"
-                    ref="dataTable">
-                    <thead>
-                      <tr>
-                        <th className="td-checkbox">
-                          <input
-                            type="checkbox"
-                            id="cbCheckAll"
-                            checked={cbCheckAll}
-                            onChange={this._handleCheckAll}
-                          />
-                        </th>
-                        <th>STT</th>
-                        <th>Mã đơn vị</th>
-                        <th>Tên đơn vị</th>
-                        <th>
-                          Diện tích km<sup>2</sup>
-                        </th>
-                        <th>Dân số </th>
-                        <th>Trạng thái</th>
-                        <th>Hành động</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {danhsach.map((item, index) => {
-                        return (
-                          <tr key={index}>
-                            <td className="td-checkbox">
-                              <input
-                                type="checkbox"
-                                checked={item.checked || false}
-                                id={item._id.$oid || item._id}
-                                onChange={this._handleCheckItem}
-                              />
-                            </td>
-                            <td className="text-center">{index + 1}</td>
-                            <td>{item.Ma}</td>
-                            <td>{item.name}</td>
-                            <td>{item.dientich}</td>
-                            <td>{item.danso}</td>
-                            {/* <td>{item.Ma}</td> */}
-                            {/* <td>{item.DonViCha ? item.DonViCha.Ten : ""}</td>
-                            <td>{item.SoDienThoai}</td>
-                            <td>{item.DiaChi}</td> */}
-                            <td>{item.KichHoat ? "Kích hoạt" : " "}</td>
-                            <td>
-                              <Link
-                                to={
-                                  "/quan-ly/don-vi-hanh-chinh/" +
-                                    item._id.$oid || item._id
-                                }
-                                title="Chi tiết"
-                                className="btn btn-sm btn-outline-info border-radius">
-                                <i className="fas fa-pencil-alt" />
-                              </Link>
-                              <button
-                                onClick={() =>
-                                  this._handleConfirmDelete(
-                                    false,
-                                    item._id.$oid || item._id
-                                  )
-                                }
-                                title="Xóa"
-                                className="btn btn-sm btn-outline-danger border-radius">
-                                <i className="fas fa-trash" />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                  <ComponentToPrint
+                    danhsach={this.state.danhsach}
+                    page={this.state.page}
+                    pagesize={this.state.pagesize}
+                    onDeleteOne={(id) => this._handleConfirmDelete(false, id)}
+                    ref={(el) => (this.componentRef = el)}
+                  />
                 </div>
               </div>
               <div className="card-footer">
@@ -510,6 +439,119 @@ class DanhSach extends Component {
       if (__DEV__) console.log(e);
       return <Other data={e} />;
     }
+  }
+}
+class ComponentToPrint extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      cbCheckAll: false,
+      modalIsOpen: false,
+      numPages: null,
+      pageNumber: 1,
+    };
+  }
+  myRef = React.createRef();
+  _handleCheckAll = (evt) => {
+    console.log("Danhsach: ", this.props.danhsach);
+    this.props.danhsach.forEach((item, index) => {
+      item.checked = evt.target.checked;
+    });
+    this.state.cbCheckAll = evt.target.checked;
+    this.forceUpdate();
+  };
+  _handleCheckItem = (evt) => {
+    this.props.danhsach.forEach((item, index) => {
+      if (item._id.$oid === evt.target.id || item._id === evt.target.id)
+        item.checked = evt.target.checked;
+    });
+    this.forceUpdate();
+  };
+
+  render() {
+    let { danhsach, printButtonClicked, page, pagesize } = this.props;
+    let { cbCheckAll, pageNumber, numPages } = this.state;
+
+    //let { checkImg, kqTTHC } = this.state;
+    return (
+      <div style={{ margin: 25 }}>
+        <br />
+        <table
+          className="table table-bordered"
+          id="dataTable"
+          width="100%"
+          cellSpacing="0"
+          ref="dataTable">
+          <thead>
+            <tr>
+              <th className="td-checkbox">
+                <input
+                  type="checkbox"
+                  id="cbCheckAll"
+                  checked={cbCheckAll}
+                  onChange={this._handleCheckAll}
+                />
+              </th>
+              <th>STT</th>
+              <th>Mã đơn vị</th>
+              <th>Tên đơn vị</th>
+              <th>
+                Diện tích km<sup>2</sup>
+              </th>
+              <th>Dân số </th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {danhsach.map((item, index) => {
+              return (
+                <tr key={index}>
+                  <td className="td-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={item.checked || false}
+                      id={item._id.$oid || item._id}
+                      onChange={this._handleCheckItem}
+                    />
+                  </td>
+                  <td className="text-center">{index + 1}</td>
+                  <td>{item.Ma}</td>
+                  <td>{item.name}</td>
+                  <td>{item.dientich}</td>
+                  <td>{item.danso}</td>
+                  {/* <td>{item.Ma}</td> */}
+                  {/* <td>{item.DonViCha ? item.DonViCha.Ten : ""}</td>
+                            <td>{item.SoDienThoai}</td>
+                            <td>{item.DiaChi}</td> */}
+                  <td>{item.KichHoat ? "Kích hoạt" : " "}</td>
+                  <td>
+                    <Link
+                      to={
+                        "/quan-ly/don-vi-hanh-chinh/" + item._id.$oid ||
+                        item._id
+                      }
+                      title="Chi tiết"
+                      className="btn btn-sm btn-outline-info border-radius">
+                      <i className="fas fa-pencil-alt" />
+                    </Link>
+                    <button
+                      onClick={() => {
+                        this.props.onDeleteOne(item._id.$oid || item._id);
+                      }}
+                      title="Xóaaaa"
+                      className="btn btn-sm btn-outline-danger border-radius">
+                      <i className="fas fa-trash" />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
   }
 }
 
