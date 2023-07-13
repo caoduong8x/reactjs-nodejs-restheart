@@ -452,7 +452,6 @@ class ComponentToPrint extends React.Component {
       pageNumber: 1,
     };
   }
-  myRef = React.createRef();
   _handleCheckAll = (evt) => {
     console.log("Danhsach: ", this.props.danhsach);
     this.props.danhsach.forEach((item, index) => {
