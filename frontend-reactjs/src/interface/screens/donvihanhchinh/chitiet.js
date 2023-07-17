@@ -246,7 +246,28 @@ class ChiTiet extends Component {
     this.setState({ ...this.state, itemHuyen: null });
     this.forceUpdate();
   };
-
+  _handleConfirmDelete = (index) => {
+    confirmAlert({
+      title: "Xóa dữ liệu",
+      message: "Bạn muốn xóa dữ liệu",
+      buttons: [
+        {
+          label: "Không",
+          onClick: () => {
+            return;
+          },
+        },
+        {
+          label: "Có",
+          onClick: () => this._handleDeleteSubOne(index),
+        },
+      ],
+    });
+  };
+  _handleDeleteSubOne = (index) => {
+    this.state.form.huyen.splice(index, 1);
+    this._handleUpdateInfo(true);
+  };
   render() {
     let { isInsert, itemHuyen, form, error, donviSelected } = this.state;
 
@@ -653,6 +674,13 @@ class ChiTiet extends Component {
                             </button>
                           </>
                         )}
+                        <button
+                          onClick={() => this._handleConfirmDelete(index)}
+                          className="btn btn-sm btn-outline-danger border-radius"
+                        >
+                          <i className="fas fa-trash" />
+                          Xóa
+                        </button>
                         <br />
                       </div>
                     </div>
