@@ -1,7 +1,25 @@
-{
+
+  {
   "KichHoat": true,
   "Ma": "thanhhoa",
   "name": "Thanh Hóa",
   "dientich": 100000,
-  "danso": 2000000
+  "danso": 2000000,
+  "huyen": [
+    { "Ma": "tpthanhhoa", "name": "Tp Thanh Hóa" },
+    { "Ma": "thieuhoa", "name": "Thiệu Hóa" },
+    { "Ma": "dongson", "name": "Đông Sơn" }
+  ]
+}
+{
+  "KichHoat": true,
+  "Ma": "nghean",
+  "name": "Nghệ An",
+  "dientich": 100000,
+  "danso": 2000000,
+  "huyen": [
+    { "Ma": "tpvinh", "name": "Tp Vinh" },
+    { "Ma": "namdan", "name": "Nam Đàn" },
+    { "Ma": "doluong", "name": "Đô Lương" }
+  ]
 }

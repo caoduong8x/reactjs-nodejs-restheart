@@ -21,7 +21,10 @@ class ChiTiet extends Component {
       donviSelected: null,
       searchTimeout: null,
       check: false,
+      itemHuyen: null,
     };
+    this._handleSuaClick = this._handleSuaClick.bind(this);
+    this._handleHuyClick = this._handleHuyClick.bind(this);
   }
 
   componentDidMount() {
@@ -52,9 +55,29 @@ class ChiTiet extends Component {
       this.forceUpdate();
     }
   };
-
+  _handleAddSubData = () => {
+    if (this.state.form.huyen && this.state.form.huyen.length > 0) {
+      this.state.form.huyen = [...this.state.form.huyen, { Ma: "", name: "" }];
+    } else {
+      this.state.form.huyen = [{ Ma: "", name: "" }];
+    }
+    this.setState({
+      ...this.state,
+      itemHuyen: null,
+    });
+    this.forceUpdate();
+  };
   _handleChangeElement = (evt) => {
     this.state.form[evt.target.id] = evt.target.value;
+    this.forceUpdate();
+  };
+  _handleChangeSubMaElement = (evt, index) => {
+    // this.state.maHuyen = evt.target.value;
+    this.state.form.huyen[index].Ma = evt.target.value;
+    this.forceUpdate();
+  };
+  _handleChangeSubTenElement = (evt, index) => {
+    this.state.form.huyen[index].name = evt.target.value;
     this.forceUpdate();
   };
 
@@ -169,6 +192,7 @@ class ChiTiet extends Component {
   _handleUpdateInfo = async (stay) => {
     let { form, donviSelected, isInsert } = this.state;
     let axiosReq = form;
+
     axiosReq.STT = Number(axiosReq.STT || 9999);
     axiosReq.DonViCha = null;
     axiosReq.Cap = 0;
@@ -180,7 +204,9 @@ class ChiTiet extends Component {
       delete axiosReq.DonViCha.value;
       delete axiosReq.DonViCha.label;
     }
-
+    if (axiosReq.huyen && axiosReq.huyen.length > 0) {
+      axiosReq.huyen = axiosReq.huyen.filter((item) => item.Ma !== "");
+    }
     let axiosRes;
     if (isInsert) {
       axiosRes = await tbDonViHanhChinh.create(axiosReq);
@@ -200,9 +226,30 @@ class ChiTiet extends Component {
       if (!stay) cmFunction.goBack();
     }
   };
+  _handleLuuClick = (item) => {
+    this.setState({ ...this.state, itemHuyen: "" });
+    this.forceUpdate();
+  };
+  _handleSuaClick = (item) => {
+    this.setState({
+      ...this.state,
+      itemHuyen: item.Ma,
+    });
+    this.forceUpdate();
+  };
+  _handleHuyClick = (index) => {
+    if (
+      this.state.form.huyen[index].Ma === "" &&
+      this.state.form.huyen[index].name === ""
+    )
+      this.state.form.huyen.splice(index, 1);
+    this.setState({ ...this.state, itemHuyen: null });
+    this.forceUpdate();
+  };
 
   render() {
-    let { isInsert, form, error, donviSelected } = this.state;
+    let { isInsert, itemHuyen, form, error, donviSelected } = this.state;
+
     if (error) return <Page404 />;
     try {
       return (
@@ -228,13 +275,15 @@ class ChiTiet extends Component {
             <div className="action">
               <button
                 onClick={() => this._handleSave(false)}
-                className="btn btn-sm btn-outline-primary border-radius">
+                className="btn btn-sm btn-outline-primary border-radius"
+              >
                 <i className="fas fa-save" />
                 Lưu
               </button>
               <button
                 onClick={() => this._handleSave(true)}
-                className="btn btn-sm btn-outline-primary border-radius">
+                className="btn btn-sm btn-outline-primary border-radius"
+              >
                 <i className="far fa-save" />
                 Lưu và tiếp tục
               </button>
@@ -245,13 +294,15 @@ class ChiTiet extends Component {
                   id="dropdownMenuButton"
                   data-toggle="dropdown"
                   aria-haspopup="true"
-                  aria-expanded="false">
+                  aria-expanded="false"
+                >
                   <i className="fas fa-share" />
                   Khác
                 </button>
                 <div
                   className="dropdown-menu"
-                  aria-labelledby="dropdownMenuButton">
+                  aria-labelledby="dropdownMenuButton"
+                >
                   <button onClick={cmFunction.goBack} className="btn btn-sm">
                     <i className="fas fa-reply" />
                     Quay lại
@@ -265,7 +316,8 @@ class ChiTiet extends Component {
                       onClick={() =>
                         this._handleConfirm(-1, this._handleDelete)
                       }
-                      className="btn btn-sm">
+                      className="btn btn-sm"
+                    >
                       <i className="fas fa-trash" />
                       Xóa
                     </button>
@@ -280,13 +332,15 @@ class ChiTiet extends Component {
               data-toggle="collapse"
               data-target="#collapseExample"
               aria-expanded="true"
-              aria-controls="collapseExample">
+              aria-controls="collapseExample"
+            >
               <span className="caption-subject">Thông tin cơ bản</span>
               <span>
                 <i className="fas fa-chevron-up" />
                 <i className="fas fa-chevron-down" />
               </span>
             </div>
+
             <div className="collapse show" id="collapseExample">
               <div className="card-body">
                 <div className="form-body" ref="form">
@@ -450,6 +504,164 @@ class ChiTiet extends Component {
               </div>
               <div className="card-footer"></div>
             </div>
+          </div>
+          <div className="card">
+            <div
+              className="card-header d-flex justify-content-between"
+              data-toggle="collapse"
+              data-target="#collapseExample2"
+              aria-expanded="true"
+              aria-controls="collapseExample2"
+            >
+              <span className="caption-subject">
+                Danh sách các Thành Phố / Huyện
+              </span>
+              <span>
+                <i className="fas fa-chevron-up" />
+                <i className="fas fa-chevron-down" />
+              </span>
+            </div>
+
+            <div className="collapse show" id="collapseExample2">
+              <div className="card-body">
+                <div className="form-body" ref="form">
+                  <FormInput
+                    parentClass="col-md-16"
+                    labelClass="col-md-16"
+                    inputClass="col-md-16"
+                    required={false}
+                    disabled={false}
+                    readOnly={false}
+                    onChange={this._handleChangeElement}
+                    defaultValue={JSON.stringify(form.huyen) || ""}
+                    type="textarea"
+                    rows="3"
+                    id="name"
+                    label="Schema:"
+                  />
+                  <br />
+                  <button
+                    className="btn btn-sm btn-outline-primary border-radius"
+                    onClick={() => this._handleAddSubData()}
+                  >
+                    <i className="fa fa-plus" />
+                    Thêm trường dữ liệu
+                  </button>
+                  <br />
+                  <br />
+                </div>
+              </div>
+
+              <div className="card-footer"></div>
+            </div>
+
+            {form.huyen &&
+              form.huyen.length > 0 &&
+              form.huyen.map((item, index) => {
+                return (
+                  <div
+                    className="collapse show"
+                    id="collapseExample"
+                    key={index}
+                  >
+                    <div className="card-body">
+                      <div
+                        className="form-body"
+                        ref="form"
+                        style={{
+                          border: "solid 1px Aquamarine",
+                        }}
+                      >
+                        <br />
+
+                        <FormWrapper>
+                          <FormInput
+                            parentClass="col-md-6"
+                            labelClass="col-md-6"
+                            inputClass="col-md-6"
+                            required={true}
+                            disabled={itemHuyen !== item.Ma}
+                            readOnly={false}
+                            onChange={(evt) => {
+                              this._handleChangeSubMaElement(evt, index);
+                              this.setState({
+                                ...this.state,
+                                itemHuyen: item.Ma,
+                              });
+                            }}
+                            defaultValue={this.state.form.huyen[index].Ma || ""}
+                            type="text"
+                            id="Ma"
+                            label="Mã Thành Phố / Huyện"
+                            placeholder="Mã Thành Phố / Huyện"
+                          />
+                          <FormInput
+                            parentClass="col-md-6"
+                            labelClass="col-md-6"
+                            inputClass="col-md-6"
+                            required={true}
+                            disabled={itemHuyen !== item.Ma}
+                            readOnly={false}
+                            onChange={(evt) => {
+                              this._handleChangeSubTenElement(evt, index);
+                              this.setState({
+                                ...this.state,
+                                itemHuyen: item.Ma,
+                              });
+                            }}
+                            defaultValue={
+                              this.state.form.huyen[index].name || ""
+                            }
+                            type="text"
+                            id="name"
+                            label="Tên Thành Phố / Huyện"
+                            placeholder="Tên Thành Phố / Huyện"
+                            // _handleCheck={this._handleCheckMaDV}
+                          />
+                        </FormWrapper>
+
+                        {(itemHuyen !== item.Ma && (
+                          <button
+                            className="btn btn-sm btn-outline-primary border-radius"
+                            onClick={() => {
+                              this._handleSuaClick(item);
+                            }}
+                          >
+                            <i className="fa fa-edit" />
+                            Sửa
+                          </button>
+                        )) || (
+                          <>
+                            <button
+                              className="btn btn-sm btn-outline-primary border-radius"
+                              onClick={() => {
+                                this._handleSave(true);
+                                this._handleLuuClick();
+                              }}
+                            >
+                              <i className="fa fa-save" />
+                              Lưu
+                            </button>
+                            <button
+                              className="btn btn-sm btn-outline-primary border-radius"
+                              onClick={() => {
+                                this._handleHuyClick(index);
+                              }}
+                            >
+                              <i className="fa fa-ban" />
+                              Hủy
+                            </button>
+                          </>
+                        )}
+                        <br />
+                      </div>
+                    </div>
+                    <br />
+
+                    <div className="card-footer"></div>
+                  </div>
+                );
+              })}
           </div>
         </div>
       );

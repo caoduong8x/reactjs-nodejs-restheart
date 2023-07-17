@@ -469,21 +469,31 @@ class DanhSach extends Component {
 class ComponentToPrint extends React.Component {
   constructor(props) {
     super(props);
-
+    console.log("constructor");
     this.state = {
       cbCheckAll: false,
+      cbHuyenCheckAll: false,
       modalIsOpen: false,
       numPages: null,
       pageNumber: 1,
       table: null,
+      itemClicked: null,
     };
   }
   _handleCheckAll = (evt) => {
     console.log("Danhsach: ", this.props.danhsach);
     this.props.danhsach.forEach((item, index) => {
+      console.log("item: ", item);
       item.checked = evt.target.checked;
     });
     this.state.cbCheckAll = evt.target.checked;
+    this.forceUpdate();
+  };
+  _handleHuyenCheckAll = (evt) => {
+    this.state.itemClicked.huyen.forEach((item, index) => {
+      item.checked = evt.target.checked;
+    });
+    this.state.cbHuyenCheckAll = evt.target.checked;
     this.forceUpdate();
   };
   _handleCheckItem = (evt) => {
@@ -493,14 +503,29 @@ class ComponentToPrint extends React.Component {
     });
     this.forceUpdate();
   };
+  _handleHuyenCheckItem = (evt) => {
+    this.state.itemClicked.huyen.forEach((item, index) => {
+      if (item.Ma === evt.target.id) item.checked = evt.target.checked;
+    });
+    this.forceUpdate();
+  };
   componentDidMount() {
     this.state.table = ReactDOM.findDOMNode(this.refs[`${"dataTable"}`]);
   }
 
+  _handleRowClick = (item) => {
+    this.setState({ ...this.state, itemClicked: item });
+    this.forceUpdate();
+    console.log("item:", item);
+    console.log("this.state.itemClicked: ", this.state.itemClicked);
+  };
   render() {
     let { danhsach, printButtonClicked, page, pagesize } = this.props;
-    let { cbCheckAll, pageNumber, numPages } = this.state;
-
+    let { cbCheckAll, cbHuyenCheckAll, itemClicked, pageNumber, numPages } =
+      this.state;
+    console.log("itemClicked render:", itemClicked);
+    itemClicked && console.log("itemClicked render:", itemClicked.huyen);
+    //console.log("render danhsach:", danhsach);
     //let { checkImg, kqTTHC } = this.state;
     return (
       <div style={{ margin: 25 }}>
@@ -535,7 +560,7 @@ class ComponentToPrint extends React.Component {
           <tbody>
             {danhsach.map((item, index) => {
               return (
-                <tr key={index}>
+                <tr key={index} onClick={() => this._handleRowClick(item)}>
                   <td className="td-checkbox">
                     <input
                       type="checkbox"
@@ -578,6 +603,88 @@ class ComponentToPrint extends React.Component {
             })}
           </tbody>
         </table>
+        <br />
+        <div className="row">
+          <div className="col-md-12">
+            <div className="panel card">
+              <div
+                className="card-header d-flex justify-content-between"
+                data-toggle="collapse"
+                data-target="#dsTTHC"
+                aria-expanded="true"
+                aria-controls="dsTTHC">
+                <h6 className="header">Danh sách Thành Phố / Huyện</h6>
+                <span>
+                  <i className="fas fa-chevron-up" />
+                  <i className="fas fa-chevron-down" />
+                </span>
+              </div>
+
+              <div
+                className="table-fix-head collapse show"
+                id="dsTTHC"
+                style={{ overflowX: "auto" }}>
+                <table
+                  className="table table-bordered"
+                  id="dataTableChildren"
+                  width="100%"
+                  cellSpacing="0">
+                  <thead>
+                    <tr>
+                      <th className="td-checkbox">
+                        <input
+                          type="checkbox"
+                          id="cbHuyenCheckAll"
+                          checked={cbHuyenCheckAll}
+                          onChange={this._handleHuyenCheckAll}
+                        />
+                      </th>
+                      <th>STT</th>
+                      <th>Mã đơn vị</th>
+                      <th>Tên đơn vị</th>
+                      <th>Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {itemClicked &&
+                      itemClicked.huyen.map((it, id) => {
+                        console.log("huyenmap:", it);
+                        return (
+                          <tr key={id}>
+                            <td className="td-checkbox">
+                              <input
+                                type="checkbox"
+                                checked={it.checked || false}
+                                id={it.Ma}
+                                onChange={this._handleHuyenCheckItem}
+                              />
+                            </td>
+                            <td className="text-center">{id + 1}</td>
+                            <td>{it.Ma}</td>
+                            <td>{it.name}</td>
+
+                            <td>
+                              <Link
+                                to={"/quan-ly/don-vi-hanh-chinh/"}
+                                title="Chi tiết"
+                                className="btn btn-sm btn-outline-info border-radius">
+                                <i className="fas fa-pencil-alt" />
+                              </Link>
+                              <button
+                                title="Xóa"
+                                className="btn btn-sm btn-outline-danger border-radius">
+                                <i className="fas fa-trash" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
         {this.props.onExportExcel(this.state.table)}
       </div>
     );
