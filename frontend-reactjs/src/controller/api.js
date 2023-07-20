@@ -42,6 +42,7 @@ export const AGGRS_DON_VI = "/don-vi";
 // GUEST
 export const GUEST = "/api/guest";
 export const GUEST_DON_VI = "/don-vi";
+export const GUEST_DON_VI_HANH_CHINH = "/don-vi-hanh-chinh";
 
 // GSP
 export const GSP = "/api/gsp";

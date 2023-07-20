@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import * as controller from "../../controller/guest/DonVi";
+import * as controller from "../../controller/guest/DonViHanhChinh";
 
 let router = express.Router();
 

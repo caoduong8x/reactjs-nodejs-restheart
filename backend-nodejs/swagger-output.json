@@ -2150,7 +2150,17 @@
         }
       }
     },
-    "/api/guest/don-vi/\\*": {
+    "/api/guest/don-vi/*": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/guest/don-vi-hanh-chinh/*": {
       "get": {
         "description": "",
         "responses": {
