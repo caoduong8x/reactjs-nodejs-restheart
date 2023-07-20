@@ -38,6 +38,7 @@ export const TB_NHOM_QUYEN_NGUOI_DUNG = "/tbNhomQuyenNguoiDung";
 // DASHBOARD
 export const AGGRS = "/api/aggrs";
 export const AGGRS_DON_VI = "/don-vi";
+export const AGGRS_DON_VI_HANH_CHINH = "/don-vi-hanh-chinh";
 
 // GUEST
 export const GUEST = "/api/guest";

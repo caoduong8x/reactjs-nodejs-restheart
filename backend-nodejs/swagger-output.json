@@ -2140,6 +2140,16 @@
         }
       }
     },
+    "/api/aggrs/don-vi-hanh-chinh/*": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/public/don-vi/\\*": {
       "get": {
         "description": "",

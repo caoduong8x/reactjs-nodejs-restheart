@@ -9,6 +9,8 @@ import { InputSearch } from "../../../../interface/components";
 import imgBackground from "../../../../common/assets/imgs/photo.jpg";
 import { isEmpty } from "../../../../common/ulti/commonFunction";
 import * as tbGuest from "../../../../controller/services/guestServices";
+import * as dashboardServices from "../../../../controller/services/dashboardServices";
+import axios from "axios";
 
 class Home extends Component {
   constructor(props) {
@@ -19,23 +21,48 @@ class Home extends Component {
   }
 
   componentDidMount = async () => {
-    console.log("componentDidMount");
-    let data = await tbGuest.getDVHC();
-    data = data && data._embedded ? data._embedded : [];
-    this.setState({ DanhSach: data });
+    console.log("componentDidMount.....");
+    if (this.props.General.Menu.length === 0) this.initAGGRS();
+    else this.initGuest();
     //console.log("DanhSach: ", this.state.DanhSach);
   };
-  init = async () => {
+  initGuest = async () => {
+    console.log("initGuest");
     let data = await tbGuest.getDVHC();
     data = data && data._embedded ? data._embedded : [];
     this.setState({ DanhSach: data });
-    console.log("DanhSach: ", this.state.DanhSach);
+    this.forceUpdate();
+  };
+  initAGGRS = async () => {
+    console.log("initAGGRS");
+    let axiosReq = [dashboardServices.getDVHC()];
+    console.log("axiosReq: ", axiosReq);
+    let data = await axios
+      .all(axiosReq)
+      .then(
+        axios.spread((...responses) => {
+          return responses;
+        })
+      )
+      .catch((errors) => {
+        if (__DEV__) console.log(errors);
+        this.props.dispatch(
+          fetchToastNotify({ type: CONSTANTS.ERROR, data: "Có lỗi _init" })
+        );
+      });
+
+    console.log("data: ", data);
+    data = data && data.length > 0 ? data[0].data : [];
+    console.log("data: ", data);
+    this.setState({ DanhSach: data });
+    this.forceUpdate();
   };
 
   render() {
     let DanhSach = this.state.DanhSach;
     console.log("render");
     console.log("DanhSach: ", DanhSach);
+    console.log("this.props:::", this.props);
     return (
       <React.Fragment>
         <div className="main portlet fade-in">
