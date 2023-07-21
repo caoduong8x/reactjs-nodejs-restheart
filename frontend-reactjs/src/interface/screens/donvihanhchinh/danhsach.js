@@ -19,6 +19,7 @@ import * as CONSTANTS from "common/ulti/constants";
 import * as tbDonViHanhChinh from "controller/services/tbDonViHanhChinhServices";
 import * as cmFunction from "common/ulti/commonFunction";
 import { Document, Page, pdfjs } from "react-pdf";
+import GoToTop from "./GoToTop";
 
 class DanhSach extends Component {
   constructor(props) {
@@ -334,20 +335,23 @@ class DanhSach extends Component {
                 <button
                   onClick={() => this._handleExportExcel(this.state.table)}
                   className="btn btn-sm btn-outline-info border-radius"
-                  title="Xuất excel">
+                  title="Xuất excel"
+                >
                   <i className="fas fa-download" />
                 </button>
                 <button
                   onClick={this._searchToggle}
                   className="btn btn-sm btn-outline-info border-radius"
-                  title="Tìm kiếm">
+                  title="Tìm kiếm"
+                >
                   <i className="fas fa-search" />
                 </button>
                 <ReactToPrint
                   trigger={() => (
                     <button
                       disabled={!danhsach.length}
-                      className="btn btn-sm btn-outline-info border-radius">
+                      className="btn btn-sm btn-outline-info border-radius"
+                    >
                       <i className="fas fa-print" />
                       In kết quả
                     </button>
@@ -390,7 +394,8 @@ class DanhSach extends Component {
                     <div className="col-md-5">
                       <button
                         onClick={this._handleSearch}
-                        className="btn btn-outline-primary border-radius ">
+                        className="btn btn-outline-primary border-radius "
+                      >
                         <i className="fas fa-search" />
                         Tìm kiếm
                       </button>
@@ -401,7 +406,8 @@ class DanhSach extends Component {
                           this._getDanhSachDonViHanhChinh(this._createFilter());
                           this._getSearch();
                         }}
-                        className="btn btn-outline-primary border-radius ">
+                        className="btn btn-outline-primary border-radius "
+                      >
                         <i className="fas fa-cubes" />
                         Hiện tất cả
                       </button>
@@ -410,7 +416,8 @@ class DanhSach extends Component {
                           this.setState({ ...this.state, search: {} });
                           // this.state.search = {};
                         }}
-                        className="btn btn-outline-primary border-radius ">
+                        className="btn btn-outline-primary border-radius "
+                      >
                         <i className="fas fa-eraser" />
                         Clear
                       </button>
@@ -424,13 +431,15 @@ class DanhSach extends Component {
               <div className="card-header">
                 <Link
                   to={"/quan-ly/don-vi-hanh-chinh/0"}
-                  className="btn btn-sm btn-outline-primary border-radius">
+                  className="btn btn-sm btn-outline-primary border-radius"
+                >
                   <i className="fas fa-plus" />
                   Thêm
                 </Link>
                 <button
                   onClick={() => this._handleConfirmDelete(true, 0)}
-                  className="btn btn-sm btn-outline-danger border-radius">
+                  className="btn btn-sm btn-outline-danger border-radius"
+                >
                   <i className="fas fa-trash" />
                   Xóa
                 </button>
@@ -469,7 +478,7 @@ class DanhSach extends Component {
 class ComponentToPrint extends React.Component {
   constructor(props) {
     super(props);
-    console.log("constructor");
+
     this.state = {
       cbCheckAll: false,
       cbHuyenCheckAll: false,
@@ -519,6 +528,7 @@ class ComponentToPrint extends React.Component {
     console.log("item:", item);
     console.log("this.state.itemClicked: ", this.state.itemClicked);
   };
+
   render() {
     let { danhsach, printButtonClicked, page, pagesize } = this.props;
     let { cbCheckAll, cbHuyenCheckAll, itemClicked, pageNumber, numPages } =
@@ -535,10 +545,11 @@ class ComponentToPrint extends React.Component {
           id="dataTable"
           width="100%"
           cellSpacing="0"
-          ref="dataTable">
+          ref="dataTable"
+        >
           <thead>
             <tr>
-              <th className="td-checkbox">
+              <th className="td-checkbox" width="40">
                 <input
                   type="checkbox"
                   id="cbCheckAll"
@@ -546,7 +557,7 @@ class ComponentToPrint extends React.Component {
                   onChange={this._handleCheckAll}
                 />
               </th>
-              <th>STT</th>
+              <th width="5%">STT</th>
               <th>Mã đơn vị</th>
               <th>Tên đơn vị</th>
               <th>
@@ -554,7 +565,7 @@ class ComponentToPrint extends React.Component {
               </th>
               <th>Dân số </th>
               <th>Trạng thái</th>
-              <th>Hành động</th>
+              <th width="12%">Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -586,7 +597,8 @@ class ComponentToPrint extends React.Component {
                         item._id
                       }
                       title="Chi tiết"
-                      className="btn btn-sm btn-outline-info border-radius">
+                      className="btn btn-sm btn-outline-info border-radius"
+                    >
                       <i className="fas fa-pencil-alt" />
                     </Link>
                     <button
@@ -594,7 +606,8 @@ class ComponentToPrint extends React.Component {
                         this.props.onDeleteOne(item._id.$oid || item._id);
                       }}
                       title="Xóa"
-                      className="btn btn-sm btn-outline-danger border-radius">
+                      className="btn btn-sm btn-outline-danger border-radius"
+                    >
                       <i className="fas fa-trash" />
                     </button>
                   </td>
@@ -612,7 +625,8 @@ class ComponentToPrint extends React.Component {
                 data-toggle="collapse"
                 data-target="#dsTTHC"
                 aria-expanded="true"
-                aria-controls="dsTTHC">
+                aria-controls="dsTTHC"
+              >
                 <h6 className="header">Danh sách Thành Phố / Huyện</h6>
                 <span>
                   <i className="fas fa-chevron-up" />
@@ -623,31 +637,33 @@ class ComponentToPrint extends React.Component {
               <div
                 className="table-fix-head collapse show"
                 id="dsTTHC"
-                style={{ overflowX: "auto" }}>
-                <table
-                  className="table table-bordered"
-                  id="dataTableChildren"
-                  width="100%"
-                  cellSpacing="0">
-                  <thead>
-                    <tr>
-                      <th className="td-checkbox">
-                        <input
-                          type="checkbox"
-                          id="cbHuyenCheckAll"
-                          checked={cbHuyenCheckAll}
-                          onChange={this._handleHuyenCheckAll}
-                        />
-                      </th>
-                      <th>STT</th>
-                      <th>Mã đơn vị</th>
-                      <th>Tên đơn vị</th>
-                      <th>Hành động</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {itemClicked &&
-                      itemClicked.huyen.map((it, id) => {
+                style={{ overflowX: "auto" }}
+              >
+                {itemClicked && (
+                  <table
+                    className="table table-bordered"
+                    id="dataTableChildren"
+                    width="100%"
+                    cellSpacing="0"
+                  >
+                    <thead>
+                      <tr>
+                        <th className="td-checkbox" width="40">
+                          <input
+                            type="checkbox"
+                            id="cbHuyenCheckAll"
+                            checked={cbHuyenCheckAll}
+                            onChange={this._handleHuyenCheckAll}
+                          />
+                        </th>
+                        <th width="5%">STT</th>
+                        <th width="39%">Mã đơn vị</th>
+                        <th>Tên đơn vị</th>
+                        <th width="12%">Hành động</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {itemClicked.huyen.map((it, id) => {
                         console.log("huyenmap:", it);
                         return (
                           <tr key={id}>
@@ -667,25 +683,29 @@ class ComponentToPrint extends React.Component {
                               <Link
                                 to={"/quan-ly/don-vi-hanh-chinh/"}
                                 title="Chi tiết"
-                                className="btn btn-sm btn-outline-info border-radius">
+                                className="btn btn-sm btn-outline-info border-radius"
+                              >
                                 <i className="fas fa-pencil-alt" />
                               </Link>
                               <button
                                 title="Xóa"
-                                className="btn btn-sm btn-outline-danger border-radius">
+                                className="btn btn-sm btn-outline-danger border-radius"
+                              >
                                 <i className="fas fa-trash" />
                               </button>
                             </td>
                           </tr>
                         );
                       })}
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </div>
         </div>
         {this.props.onExportExcel(this.state.table)}
+        <GoToTop />
       </div>
     );
   }
